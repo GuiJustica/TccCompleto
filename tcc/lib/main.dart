@@ -20,9 +20,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CadOrLogin(),
+      home: SplashScreen(),
       routes: {
         'home': (context) => MyHomePage(),
+        'cadorlogin': (context) => CadOrLogin(),
         'settings': (context) => Settings(),
         'perfil': (context) => Perfil(),
         'tutorial': (context) => Tutorial(),
