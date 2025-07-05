@@ -5,4 +5,4 @@ Criar um .bat dps para:
 py -3.10 -m venv venv
 .\venv\Scripts\activate
 
-pip install tensorflow tensorflow-hub librosa sounddevice numpy
+pip install tensorflow tensorflow-hub librosa sounddevice numpy pandas
