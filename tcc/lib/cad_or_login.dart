@@ -85,7 +85,7 @@ class CadOrLogin extends StatelessWidget {
                         Text(
                           "Seu melhor",
                           style: TextStyle(
-                            fontSize: 36,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 117, 95, 168),
                           ),
@@ -94,7 +94,7 @@ class CadOrLogin extends StatelessWidget {
                         Text(
                           "amigo ouvinte!",
                           style: TextStyle(
-                            fontSize: 36,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 117, 95, 168),
                           ),

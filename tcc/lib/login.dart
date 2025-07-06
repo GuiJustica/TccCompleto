@@ -165,7 +165,7 @@ class Login extends StatelessWidget {
                               Navigator.pushNamed(context, 'cadastro');
                             },
                             child: Text(
-                              "Criar conta conta!",
+                              "Criar nova conta!",
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
