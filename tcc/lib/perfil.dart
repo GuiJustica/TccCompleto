@@ -93,7 +93,18 @@ class Perfil extends StatelessWidget {
           ],
         ),
       ),
-      body: SafeArea(child: Column()),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(height: 100, width: double.infinity, color: Colors.amber),
+            Expanded(
+              flex: 2,
+              child: Container(width: double.infinity, color: Colors.amber),
+            ),
+            Container(height: 100, width: double.infinity, color: Colors.amber),
+          ],
+        ),
+      ),
     );
   }
 }
