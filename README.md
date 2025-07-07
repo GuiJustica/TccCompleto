@@ -13,5 +13,4 @@ Parte do Firebase authentication
   flutter pub add firebase_core
   flutter pub add firebase_auth
   flutter pub add firebase_database:^11.3.9
-Para os vídeos do tutorial
-  flutter pub add youtube_player_flutter
+
