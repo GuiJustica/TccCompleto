@@ -93,6 +93,7 @@ class Perfil extends StatelessWidget {
           ],
         ),
       ),
+      body: SafeArea(child: Column()),
     );
   }
 }

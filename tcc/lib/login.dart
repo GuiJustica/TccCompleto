@@ -1,11 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
-class Login extends StatelessWidget {
+import 'package:firebase_auth/firebase_auth.dart';
+
+class Login extends StatefulWidget {
   Login({super.key});
 
-  final telefoneController = TextEditingController();
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  final emailController = TextEditingController();
+
   final passwordController = TextEditingController();
+  bool loading = false;
+
+  void verificarLogin() async {
+    final email = emailController.text.trim();
+    final senha = passwordController.text.trim();
+
+    if (email.isEmpty || senha.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Preencha todos os campos')));
+      return;
+    }
+
+    setState(() => loading = true);
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+      if (!mounted) return;
+      // Login bem-sucedido
+      Navigator.pushReplacementNamed(context, 'home');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao entrar: ${e.message}')));
+    } finally {
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +121,8 @@ class Login extends StatelessWidget {
                       //Numero de telefone
                       const SizedBox(height: 50),
                       MyTextfield(
-                        controller: telefoneController,
-                        hintText: 'Número de Telefone',
+                        controller: emailController,
+                        hintText: 'E-mail',
                         isPassword: false,
                       ),
                       const SizedBox(height: 5),
@@ -109,7 +149,7 @@ class Login extends StatelessWidget {
                       ),
                       const SizedBox(height: 50),
                       ElevatedButton(
-                        onPressed: () => Navigator.pushNamed(context, 'home'),
+                        onPressed: () => verificarLogin(),
 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,

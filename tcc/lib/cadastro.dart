@@ -1,17 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/constants/my_textfield.dart';
-import 'package:tcc/login.dart';
 
-class Cadastro extends StatelessWidget {
-  Cadastro({super.key});
+import 'package:firebase_auth/firebase_auth.dart';
 
-  final telefoneController = TextEditingController();
+class Cadastro extends StatefulWidget {
+  const Cadastro({super.key});
+
+  @override
+  State<Cadastro> createState() => _CadastroState();
+}
+
+class _CadastroState extends State<Cadastro> {
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final usernameController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  void irLog(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+  bool loading = false;
+
+  Future<void> validacaoCadastro() async {
+    final email = emailController.text.trim();
+    final nome = usernameController.text.trim();
+    final senha = passwordController.text.trim();
+    final confirmaSenha = confirmPasswordController.text.trim();
+
+    if (email.isEmpty ||
+        nome.isEmpty ||
+        senha.isEmpty ||
+        confirmaSenha.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Preencha todos os campos')));
+      return;
+    }
+
+    if (senha != confirmaSenha) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('As senhas não coincidem')));
+      return;
+    }
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(context, 'login');
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.message ?? "Erro desconhecido"}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -87,8 +142,8 @@ class Cadastro extends StatelessWidget {
                       //Numero de telefone
                       const SizedBox(height: 50),
                       MyTextfield(
-                        controller: telefoneController,
-                        hintText: 'Número de Telefone',
+                        controller: emailController,
+                        hintText: 'Informe seu E-mail',
                         isPassword: false,
                       ),
                       // Nome
@@ -115,7 +170,7 @@ class Cadastro extends StatelessWidget {
 
                       const SizedBox(height: 25),
                       ElevatedButton(
-                        onPressed: () => irLog(context),
+                        onPressed: loading ? null : validacaoCadastro,
 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,

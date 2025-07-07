@@ -9,7 +9,11 @@ import 'package:tcc/cad_or_login.dart';
 import 'package:tcc/settings.dart';
 import 'package:tcc/tutorial.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
