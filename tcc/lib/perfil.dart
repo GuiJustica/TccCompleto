@@ -93,15 +93,77 @@ class Perfil extends StatelessWidget {
           ],
         ),
       ),
+      backgroundColor: Colors.deepPurple.shade100,
       body: SafeArea(
         child: Column(
           children: [
-            Container(height: 100, width: double.infinity, color: Colors.amber),
+            Container(
+              height: 100,
+              width: double.infinity,
+              color: Colors.deepPurple.shade100,
+
+              child: Row(
+                children: [
+                  //FOTO DE PERFIL OU SO AVATAR NAO SEI PRA QUE TBM
+                  Container(
+                    width: 100,
+                    height: double.infinity,
+                    color: Colors.deepPurple.shade100,
+                    child: Icon(Icons.person),
+                  ),
+                  //Entrar com o nome da pessoa
+                  RichText(
+                    textAlign: TextAlign.start,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Olá ",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                          ),
+                        ),
+                        TextSpan(
+                          text: "Bianca ",
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20,
+                          ),
+                        ),
+                        TextSpan(
+                          text: "!",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               flex: 2,
-              child: Container(width: double.infinity, color: Colors.amber),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+              ),
             ),
-            Container(height: 100, width: double.infinity, color: Colors.amber),
+            Container(
+              height: 100,
+              width: double.infinity,
+              color: Colors.deepPurple.shade100,
+            ),
           ],
         ),
       ),
