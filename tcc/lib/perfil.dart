@@ -1,8 +1,87 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 
-class Perfil extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/my_textformfield.dart';
+
+class Perfil extends StatefulWidget {
   const Perfil({super.key});
+
+  @override
+  State<Perfil> createState() => _PerfilState();
+}
+
+class _PerfilState extends State<Perfil> {
+  final user = FirebaseAuth.instance.currentUser;
+  final database = FirebaseDatabase.instance.ref();
+
+  final nomeController = TextEditingController();
+  final emailController = TextEditingController();
+  final telefoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final surdezController = TextEditingController();
+
+  bool loading = false;
+  bool editando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDadosUsuario();
+  }
+
+  Future<void> _carregarDadosUsuario() async {
+    if (user == null) return;
+
+    setState(() => loading = true);
+
+    try {
+      // Preenche o e-mail com o valor do FirebaseAuth
+      emailController.text = user!.email ?? '';
+
+      final snapshot = await database.child('usuarios/${user!.uid}').get();
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        nomeController.text = data['nome'] ?? '';
+        telefoneController.text = data['telefone'] ?? '';
+        surdezController.text = data['grauSurdez'] ?? '';
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar dados: $e');
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> salvarDados() async {
+    if (user == null) return;
+
+    setState(() => loading = true);
+
+    try {
+      await database.child('usuarios/${user!.uid}').update({
+        'nome': nomeController.text.trim(),
+        'telefone': telefoneController.text.trim(),
+        'grauSurdez': surdezController.text.trim(),
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dados salvos com sucesso!')),
+      );
+    } catch (e) {
+      debugPrint('Erro ao salvar dados: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao salvar os dados')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,79 +173,152 @@ class Perfil extends StatelessWidget {
         ),
       ),
       backgroundColor: Colors.deepPurple.shade100,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              height: 100,
-              width: double.infinity,
-              color: Colors.deepPurple.shade100,
-
-              child: Row(
-                children: [
-                  //FOTO DE PERFIL OU SO AVATAR NAO SEI PRA QUE TBM
-                  Container(
-                    width: 100,
-                    height: double.infinity,
-                    color: Colors.deepPurple.shade100,
-                    child: Icon(Icons.person),
-                  ),
-                  //Entrar com o nome da pessoa
-                  RichText(
-                    textAlign: TextAlign.start,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Olá ",
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20,
-                          ),
+      body:
+          loading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: Column(
+                  children: [
+                    // Cabeçalho com avatar, nome e botão
+                    Container(
+                      height: 100,
+                      width: double.infinity,
+                      color: Colors.deepPurple.shade100,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 16,
                         ),
-                        TextSpan(
-                          text: "Bianca ",
-                          style: TextStyle(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
-                          ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.deepPurple,
+                              child: const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: "Olá ",
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          nomeController.text.isEmpty
+                                              ? "Usuário"
+                                              : nomeController.text
+                                                  .split(" ")
+                                                  .first,
+                                      style: const TextStyle(
+                                        color: Colors.deepPurple,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: "!",
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: "!",
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
+
+                    const SizedBox(height: 20),
+
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                MyTextformfield(
+                                  controller: nomeController,
+                                  hintText: 'Nome',
+                                  enabled: editando,
+                                  isPassword: false,
+                                ),
+                                MyTextformfield(
+                                  controller: emailController,
+                                  hintText: 'E-mail',
+                                  enabled: false, // e-mail não editável
+                                  isPassword: false,
+                                ),
+                                MyTextformfield(
+                                  controller: telefoneController,
+                                  hintText: 'Telefone',
+                                  enabled: editando,
+                                  isPassword: false,
+                                ),
+                                MyTextformfield(
+                                  controller: passwordController,
+                                  hintText: 'Senha (não editável aqui)',
+                                  enabled:
+                                      false, // por segurança, não alterável aqui
+                                  isPassword: true,
+                                ),
+                                MyTextformfield(
+                                  controller: surdezController,
+                                  hintText: 'Grau de Surdez',
+                                  enabled: editando,
+                                  isPassword: false,
+                                ),
+                                const SizedBox(height: 50),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (editando) {
+                                      await salvarDados();
+                                    }
+                                    setState(() => editando = !editando);
+                                  },
+                                  child: Text(
+                                    editando ? "Salvar" : "Editar",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Container(
-              height: 100,
-              width: double.infinity,
-              color: Colors.deepPurple.shade100,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
