@@ -32,7 +32,8 @@ class _MyTextfieldState extends State<MyTextformfield> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
+
       child: TextFormField(
         controller: widget.controller,
         obscureText: _obscureText,
@@ -45,11 +46,11 @@ class _MyTextfieldState extends State<MyTextformfield> {
           ),
           hintText: widget.hintText,
           hintStyle: TextStyle(
-            color: Colors.grey.shade600,
+            color: Colors.black87,
             fontWeight: FontWeight.w500,
           ),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colors.deepPurple.shade100,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey.shade300),

@@ -194,7 +194,7 @@ class _PerfilState extends State<Perfil> {
                           children: [
                             CircleAvatar(
                               radius: 40,
-                              backgroundColor: Colors.deepPurple,
+                              backgroundColor: Colors.deepPurple.shade300,
                               child: const Icon(
                                 Icons.person,
                                 size: 40,
@@ -207,9 +207,9 @@ class _PerfilState extends State<Perfil> {
                                 text: TextSpan(
                                   children: [
                                     const TextSpan(
-                                      text: "Olá ",
+                                      text: "Olá, ",
                                       style: TextStyle(
-                                        color: Colors.black87,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
                                       ),
@@ -230,7 +230,7 @@ class _PerfilState extends State<Perfil> {
                                     const TextSpan(
                                       text: "!",
                                       style: TextStyle(
-                                        color: Colors.black87,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
                                       ),
@@ -244,7 +244,7 @@ class _PerfilState extends State<Perfil> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
                     Expanded(
                       flex: 2,
@@ -260,8 +260,10 @@ class _PerfilState extends State<Perfil> {
                         child: SingleChildScrollView(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
+
                             child: Column(
                               children: [
+                                const SizedBox(height: 40),
                                 MyTextformfield(
                                   controller: nomeController,
                                   hintText: 'Nome',
@@ -293,7 +295,7 @@ class _PerfilState extends State<Perfil> {
                                   enabled: editando,
                                   isPassword: false,
                                 ),
-                                const SizedBox(height: 50),
+                                const SizedBox(height: 40),
                                 ElevatedButton(
                                   onPressed: () async {
                                     if (editando) {
@@ -301,11 +303,22 @@ class _PerfilState extends State<Perfil> {
                                     }
                                     setState(() => editando = !editando);
                                   },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.deepPurple.shade100,
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 80,
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
                                   child: Text(
                                     editando ? "Salvar" : "Editar",
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.deepPurple,
+                                      color: Colors.black,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -314,6 +327,42 @@ class _PerfilState extends State<Perfil> {
                             ),
                           ),
                         ),
+                      ),
+                    ),
+                    Container(
+                      height: 80,
+                      width: double.infinity,
+                      color: Colors.deepPurple.shade100,
+                      child: Row(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2.0,
+                              ),
+                              child: TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "Excluir conta",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.delete_forever),
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
