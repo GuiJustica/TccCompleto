@@ -1,5 +1,6 @@
 import 'dart:math';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -121,11 +122,39 @@ class MyHomePage extends StatelessWidget {
                       icon: Icon(Icons.add_circle_outline),
                       color: Colors.deepPurple,
                     ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'cadastroHardware');
+                      },
+                      icon: Icon(Icons.dehaze),
+                      color: Colors.deepPurple,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'cadastroHardware');
+                      },
+                      icon: Icon(Icons.brush),
+                      color: Colors.deepPurple,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'cadastroHardware');
+                      },
+                      icon: Icon(Icons.view_quilt_rounded),
+                      color: Colors.deepPurple,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'cadastroHardware');
+                      },
+                      icon: Icon(Icons.waves),
+                      color: Colors.deepPurple,
+                    ),
                   ],
                 ),
               ),
             ),
-            Expanded(child: Container()),
+            Expanded(child: Container(color: Colors.amber)),
           ],
         ),
       ),

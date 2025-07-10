@@ -31,6 +31,40 @@ class _PerfilState extends State<Perfil> {
     _carregarDadosUsuario();
   }
 
+  Future<void> _excluirConta(String email, String senha) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    try {
+      // 1. Reautenticação
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: senha,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // 2. Exclusão da conta
+      await user.delete();
+
+      // 3. (Opcional) Remover dados do Realtime Database
+      final db = FirebaseDatabase.instance.ref();
+      await db.child('usuarios/${user.uid}').remove();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Conta excluída com sucesso")));
+
+      Navigator.pushReplacementNamed(context, 'login');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao excluir conta: ${e.message}")),
+      );
+    }
+  }
+
   Future<void> _carregarDadosUsuario() async {
     if (user == null) return;
 
@@ -342,7 +376,56 @@ class _PerfilState extends State<Perfil> {
                                 horizontal: 2.0,
                               ),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  final emailController =
+                                      TextEditingController();
+                                  final senhaController =
+                                      TextEditingController();
+
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text('Confirmar exclusão'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextField(
+                                              controller: emailController,
+                                              decoration: InputDecoration(
+                                                labelText: 'E-mail',
+                                              ),
+                                            ),
+                                            TextField(
+                                              controller: senhaController,
+                                              obscureText: true,
+                                              decoration: InputDecoration(
+                                                labelText: 'Senha',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(context),
+                                            child: Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              await _excluirConta(
+                                                emailController.text.trim(),
+                                                senhaController.text.trim(),
+                                              );
+                                            },
+                                            child: Text('Excluir'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
                                 child: Text(
                                   "Excluir conta",
                                   style: TextStyle(
