@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+      home: InfoHardware(),
       routes: {
         'home': (context) => MyHomePage(),
         'cadorlogin': (context) => CadOrLogin(),
