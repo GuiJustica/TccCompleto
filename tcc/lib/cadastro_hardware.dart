@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/constants/my_textfield.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CadastroHardware extends StatelessWidget {
   CadastroHardware({super.key});
@@ -99,7 +101,83 @@ class CadastroHardware extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final wifi = wifiController.text;
+                    final senha = senhaWifiController.text;
+
+                    if (wifi.isEmpty || senha.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Preencha todos os campos'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    await Permission.bluetoothScan.request();
+                    await Permission.bluetoothConnect.request();
+                    await Permission.locationWhenInUse.request();
+
+                    FlutterBluePlus.startScan(
+                      timeout: const Duration(seconds: 5),
+                    );
+                    BluetoothDevice? dispositivo;
+
+                    // Aguarda o primeiro dispositivo com nome esperado
+                    await for (final results in FlutterBluePlus.scanResults) {
+                      for (final result in results) {
+                        if (result.device.name.contains("RPi") ||
+                            result.device.name.isNotEmpty) {
+                          dispositivo = result.device;
+                          await FlutterBluePlus.stopScan();
+                          break;
+                        }
+                      }
+                      if (dispositivo != null) break;
+                    }
+
+                    if (dispositivo == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Nenhum dispositivo encontrado'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    try {
+                      await dispositivo!.connect();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Conectado a ${dispositivo!.name}'),
+                        ),
+                      );
+
+                      // Envia o Wi-Fi e senha (você precisa definir o service/characteristic na Raspberry depois)
+                      List<BluetoothService> services =
+                          await dispositivo!.discoverServices();
+                      for (var service in services) {
+                        for (var characteristic in service.characteristics) {
+                          if (characteristic.properties.write) {
+                            final payload = '$wifi;$senha';
+                            await characteristic.write(payload.codeUnits);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Credenciais enviadas via BLE'),
+                              ),
+                            );
+                            break;
+                          }
+                        }
+                      }
+
+                      await dispositivo!.disconnect();
+                    } catch (e) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     shape: RoundedRectangleBorder(

@@ -9,6 +9,7 @@ import 'package:tcc/cad_or_login.dart';
 import 'package:tcc/settings.dart';
 import 'package:tcc/tutorial.dart';
 import 'package:tcc/info_hardware.dart';
+import 'package:tcc/vinculacao_hardware.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: InfoHardware(),
+      home: VinculacaoHardware(),
       routes: {
         'home': (context) => MyHomePage(),
         'cadorlogin': (context) => CadOrLogin(),
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         'login': (context) => Login(),
         'cadastroHardware': (context) => CadastroHardware(),
         'infoHardware': (context) => InfoHardware(),
+        'vincHardware': (context) => VinculacaoHardware(),
       },
     );
   }

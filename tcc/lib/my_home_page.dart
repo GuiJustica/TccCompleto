@@ -122,32 +122,12 @@ class MyHomePage extends StatelessWidget {
                       icon: Icon(Icons.add_circle_outline),
                       color: Colors.deepPurple,
                     ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, 'cadastroHardware');
-                      },
-                      icon: Icon(Icons.dehaze),
-                      color: Colors.deepPurple,
-                    ),
+
                     IconButton(
                       onPressed: () {
                         Navigator.pushNamed(context, 'cadastroHardware');
                       },
                       icon: Icon(Icons.brush),
-                      color: Colors.deepPurple,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, 'cadastroHardware');
-                      },
-                      icon: Icon(Icons.view_quilt_rounded),
-                      color: Colors.deepPurple,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, 'cadastroHardware');
-                      },
-                      icon: Icon(Icons.waves),
                       color: Colors.deepPurple,
                     ),
                   ],
