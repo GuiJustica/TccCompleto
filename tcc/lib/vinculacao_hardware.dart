@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class VinculacaoHardware extends StatefulWidget {
   const VinculacaoHardware({super.key});
@@ -10,8 +12,25 @@ class VinculacaoHardware extends StatefulWidget {
 }
 
 class _VinculacaoHardwareState extends State<VinculacaoHardware> {
+  String? wifi;
+  String? senha;
+
   List<ScanResult> dispositivosEncontrados = [];
   bool buscando = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+    wifi = args['wifi'];
+    senha = args['senha'];
+
+    debugPrint("[DEBUG] WiFi recebido: $wifi");
+    debugPrint("[DEBUG] Senha recebida: $senha");
+
+    buscarDispositivos(); // inicia o scan automaticamente
+  }
 
   @override
   void initState() {
@@ -45,11 +64,40 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
   void conectarDispositivo(BluetoothDevice device) async {
     try {
       await device.connect();
+
+      final String nomeDispositivo =
+          device.name.isNotEmpty ? device.name : 'Sem nome';
+      final String idDispositivo = device.id.toString();
+      final String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Estrutura para salvar
+      final Map<String, dynamic> dadosDispositivo = {
+        'nome': nomeDispositivo,
+        'id': idDispositivo,
+        'wifi': wifi,
+        'senha': senha,
+        'criado_em': DateTime.now().toIso8601String(),
+      };
+
+      // Caminho: /usuarios/uid/dispositivos/gerado_por_push()
+      final DatabaseReference ref = FirebaseDatabase.instance
+          .ref()
+          .child('usuarios')
+          .child(uid)
+          .child('dispositivos');
+
+      await ref.push().set(dadosDispositivo);
+
+      debugPrint("[DEBUG] Dispositivo salvo no Firebase Realtime");
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Conectado a ${device.name}')));
-      // Aqui: envio de dados futuros (SSID, senha, ID do usuário...)
+      ).showSnackBar(SnackBar(content: Text('Dispositivo conectado e salvo')));
+
+      // Voltar à tela principal
+      Navigator.popUntil(context, ModalRoute.withName('home'));
     } catch (e) {
+      debugPrint("[ERRO] Falha ao conectar ou salvar: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao conectar: $e')));

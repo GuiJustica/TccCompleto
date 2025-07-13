@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-bool notificacaoVisual = true;
-bool notificacaoSom = false;
-bool notificacaoVibracao = false;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 enum _Rooms {
   sala('Sala'),
@@ -21,21 +19,25 @@ class InfoHardware extends StatefulWidget {
 }
 
 class _InfoHardwareState extends State<InfoHardware> {
-  _Rooms? selectedRoom = _Rooms.sala;
+  bool notificacaoVisual = true;
+  bool notificacaoSom = false;
+  bool notificacaoVibracao = false;
+  _Rooms? selectedRoom;
+  bool carregouDados = false;
 
-  void salvarNoFirebase() async {
-    // Exemplo usando Firebase Realtime Database
-    // final userId = FirebaseAuth.instance.currentUser?.uid;
-    // final deviceId = "id_do_dispositivo";
+  void salvarNoFirebase(String deviceId, String userId) async {
+    await FirebaseDatabase.instance
+        .ref('usuarios/$userId/dispositivos/$deviceId')
+        .update({
+          'ambiente': selectedRoom?.label ?? 'Indefinido',
+          'notificacaoVisual': notificacaoVisual,
+          'notificacaoSom': notificacaoSom,
+          'notificacaoVibracao': notificacaoVibracao,
+        });
 
-    // await FirebaseDatabase.instance
-    //     .ref()
-    //     .child('usuarios/$userId/dispositivos/$deviceId')
-    //     .set({'ambiente': selectedRoom?.label ?? 'Indefinido'});
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ambiente "${selectedRoom?.label}" salvo!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Configurações salvas com sucesso')));
   }
 
   void _abrirConfiguracoes(BuildContext context) {
@@ -87,9 +89,7 @@ class _InfoHardwareState extends State<InfoHardware> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Configurações salvas')),
                       );
-                      setState(
-                        () {},
-                      ); // atualiza o estado do widget pai, se necessário
+                      setState(() {});
                     },
                     icon: Icon(Icons.check),
                     label: Text('Salvar'),
@@ -109,221 +109,245 @@ class _InfoHardwareState extends State<InfoHardware> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+    final String deviceId = args['id'];
+    final String nomeDispositivo = args['nome'] ?? 'Sem nome';
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref(
+      'usuarios/$userId/dispositivos/$deviceId',
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Cabeçalho fixo
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Nome Dispositivo",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+        child: StreamBuilder<DatabaseEvent>(
+          stream: ref.onValue,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final data = snapshot.data!.snapshot.value as Map;
+
+            if (!carregouDados) {
+              notificacaoVisual = data['notificacaoVisual'] ?? true;
+              notificacaoSom = data['notificacaoSom'] ?? false;
+              notificacaoVibracao = data['notificacaoVibracao'] ?? false;
+
+              selectedRoom = _Rooms.values.firstWhere(
+                (room) => room.label == (data['ambiente'] ?? 'Sala'),
+                orElse: () => _Rooms.sala,
+              );
+
+              carregouDados = true;
+            }
+
+            return Column(
+              children: [
+                Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.deepPurple,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Image.asset(
-                    'assets/images/rasp.png',
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  ),
-                ],
-              ),
-            ),
-
-            // Conteúdo rolável
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Ambiente
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple.shade100,
-                        borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        nomeDispositivo,
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          const Text(
-                            "Ambiente:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      SizedBox(height: 12),
+                      Image.asset(
+                        'assets/images/rasp.png',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple.shade100,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<_Rooms>(
-                              value: selectedRoom,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
+                          child: Row(
+                            children: [
+                              const Text(
+                                "Ambiente:",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              items:
-                                  _Rooms.values.map((room) {
-                                    return DropdownMenuItem<_Rooms>(
-                                      value: room,
-                                      child: Text(room.label),
-                                    );
-                                  }).toList(),
-                              onChanged: (_Rooms? room) {
-                                setState(() => selectedRoom = room);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Último Registro
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.deepPurple),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: DropdownButtonFormField<_Rooms>(
+                                  value: selectedRoom,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                  ),
+                                  items:
+                                      _Rooms.values.map((room) {
+                                        return DropdownMenuItem<_Rooms>(
+                                          value: room,
+                                          child: Text(room.label),
+                                        );
+                                      }).toList(),
+                                  onChanged: (_Rooms? room) {
+                                    setState(() => selectedRoom = room);
+                                  },
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              "Ver todos os registros",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () {},
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Colors.deepPurple,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Ver todos os registros",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                              ),
+                              const Divider(
+                                thickness: 1,
                                 color: Colors.deepPurple,
                               ),
-                            ),
-                          ),
-                          const Divider(thickness: 1, color: Colors.deepPurple),
-
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: const [
-                                  Text(
-                                    "Horário",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Horário",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text("14:35"),
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
-                                  Text("14:35"),
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Text(
-                                    "Som",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Som",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text("Cachorro Latindo"),
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
-                                  Text("Cachorro Latindo"),
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Text(
-                                    "Intensidade",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Intensidade",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text("0.82"),
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
-                                  Text("0.82"),
                                 ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Configurações avançadas
-                    FilledButton.tonal(
-                      onPressed: () => _abrirConfiguracoes(context),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.deepPurple.shade100,
-                        foregroundColor: Colors.deepPurple,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
                         ),
-                      ),
-                      child: const Text(
-                        'Configurações avançadas',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.deepPurple,
+                        const SizedBox(height: 20),
+                        FilledButton.tonal(
+                          onPressed: () => _abrirConfiguracoes(context),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.deepPurple.shade100,
+                            foregroundColor: Colors.deepPurple,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: const Text(
+                            'Configurações avançadas',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 100),
+                      ],
                     ),
-
-                    const SizedBox(height: 100), // Espaço para o botão final
-                  ],
-                ),
-              ),
-            ),
-
-            // Botão salvar fixo
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  icon: const Icon(Icons.save, color: Colors.white),
-                  label: const Text(
-                    'Salvar',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                  onPressed: salvarNoFirebase,
                 ),
-              ),
-            ),
-          ],
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label: const Text(
+                        'Salvar',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      onPressed: () => salvarNoFirebase(deviceId, userId),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

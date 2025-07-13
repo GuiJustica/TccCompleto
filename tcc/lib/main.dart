@@ -4,7 +4,7 @@ import 'package:tcc/cadastro_hardware.dart';
 import 'package:tcc/login.dart';
 import 'package:tcc/my_home_page.dart';
 import 'package:tcc/perfil.dart';
-import 'package:tcc/splash_screen.dart';
+//import 'package:tcc/splash_screen.dart';
 import 'package:tcc/cad_or_login.dart';
 import 'package:tcc/settings.dart';
 import 'package:tcc/tutorial.dart';
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: VinculacaoHardware(),
+      home: Cadastro(),
       routes: {
         'home': (context) => MyHomePage(),
         'cadorlogin': (context) => CadOrLogin(),
