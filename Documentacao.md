@@ -32,14 +32,14 @@ Apresentação: **10/07/2025 às 20:30**
 ## 13/06/2025 - Retorno de feedback do professor Anjoletto
 
 ## 17/06/2025 até 26/06/2025 - Férias do TCC  
-*(compra da Raspberry Pi)*
+*Compra da Raspberry Pi*
 
 ## 27/06/2025 - Organização dos feedbacks retornados sobre a apresentação e sobre o texto
 
 ## 28/06/2025 até 18/07/2025 - Desenvolvimento da aplicação mobile
 
 ## 18/07/2025 até 21/08/2025 - Descanso  
-*(compra do microfone)*
+*Compra do microfone e outros*
 
 ## 25/08/2025 - Preparação da Raspberry Pi: instalação do SO e configuração do Wi-Fi
 
