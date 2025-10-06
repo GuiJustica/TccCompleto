@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:tcc/services/auth_service.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_um.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_dois.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'package:tcc/constants/texto_logo_invertido.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -50,14 +57,14 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 247, 247, 247),
+      backgroundColor: fundoBranco,
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: Color.fromARGB(255, 247, 247, 247),
+                color: fundoBranco,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 24, top: 24),
                   child: Row(
@@ -74,26 +81,15 @@ class _LoginState extends State<Login> {
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 10.0),
+                            padding: const EdgeInsets.only(top: 10.0),
                             child: Text(
-                              "Guilo's Sound",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 117, 95, 168),
-                              ),
+                              TextosLogo.nomeApp,
+                              style: TextosLogo.titulo,
                             ),
                           ),
-                          Text(
-                            "Sons Inteligentes",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 117, 95, 168),
-                            ),
-                          ),
+                          Text(TextosLogo.slogan, style: TextosLogo.subtitulo),
                         ],
                       ),
                     ],
@@ -107,7 +103,7 @@ class _LoginState extends State<Login> {
                 height: 400,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 99, 59, 145),
+                  color: fundoRoxoTres,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -118,12 +114,12 @@ class _LoginState extends State<Login> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      //Numero de telefone
                       const SizedBox(height: 50),
                       MyTextfield(
                         controller: emailController,
                         hintText: 'E-mail',
                         isPassword: false,
+                        isEmail: true,
                       ),
                       const SizedBox(height: 5),
                       MyTextfield(
@@ -138,7 +134,9 @@ class _LoginState extends State<Login> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.pushNamed(context, 'forgetSenha');
+                              },
                               child: Text(
                                 'Esqueceu a senha?',
                                 style: TextStyle(color: Colors.white),
@@ -152,20 +150,19 @@ class _LoginState extends State<Login> {
                         onPressed: () => verificarLogin(),
 
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
+                          backgroundColor: fundoBranco,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 80,
                             vertical: 12,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(22),
                           ),
                         ),
                         child: const Text(
                           "Entrar",
                           style: TextStyle(
-                            color: Colors.deepPurple,
+                            color: fundoRoxoTres,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),

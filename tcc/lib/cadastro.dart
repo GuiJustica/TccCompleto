@@ -4,10 +4,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-import 'package:flutter/material.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_um.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_dois.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'package:tcc/constants/texto_logo_invertido.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
@@ -19,21 +24,16 @@ class Cadastro extends StatefulWidget {
 class _CadastroState extends State<Cadastro> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final usernameController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   bool loading = false;
 
   Future<void> validacaoCadastro() async {
     final email = emailController.text.trim();
-    final nome = usernameController.text.trim();
     final senha = passwordController.text.trim();
     final confirmaSenha = confirmPasswordController.text.trim();
 
-    if (email.isEmpty ||
-        nome.isEmpty ||
-        senha.isEmpty ||
-        confirmaSenha.isEmpty) {
+    if (email.isEmpty || senha.isEmpty || confirmaSenha.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Preencha todos os campos')));
@@ -78,15 +78,14 @@ class _CadastroState extends State<Cadastro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 247, 247, 247),
+      backgroundColor: fundoBranco,
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: Container(
                 width: double.infinity,
-                height: 250,
-                color: Color.fromARGB(255, 247, 247, 247),
+                color: fundoBranco,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 24, top: 24),
                   child: Row(
@@ -103,26 +102,15 @@ class _CadastroState extends State<Cadastro> {
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 10.0),
+                            padding: const EdgeInsets.only(top: 10.0),
                             child: Text(
-                              "Guilo's Sound",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 117, 95, 168),
-                              ),
+                              TextosLogo.nomeApp,
+                              style: TextosLogo.titulo,
                             ),
                           ),
-                          Text(
-                            "Sons Inteligentes",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 117, 95, 168),
-                            ),
-                          ),
+                          Text(TextosLogo.slogan, style: TextosLogo.subtitulo),
                         ],
                       ),
                     ],
@@ -131,12 +119,11 @@ class _CadastroState extends State<Cadastro> {
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Container(
-                height: 400,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 99, 59, 145),
+                  color: fundoRoxoTres,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
@@ -151,14 +138,9 @@ class _CadastroState extends State<Cadastro> {
                         controller: emailController,
                         hintText: 'Informe seu E-mail',
                         isPassword: false,
+                        isEmail: true,
                       ),
-                      // Nome
-                      const SizedBox(height: 5),
-                      MyTextfield(
-                        controller: usernameController,
-                        hintText: 'Nome',
-                        isPassword: false,
-                      ),
+
                       // Senha
                       const SizedBox(height: 5),
                       MyTextfield(
@@ -172,15 +154,16 @@ class _CadastroState extends State<Cadastro> {
                         controller: confirmPasswordController,
                         hintText: 'Confirmar Senha',
                         isPassword: true,
+                        isConfirmPassword: true,
+                        mainPasswordController: passwordController,
                       ),
 
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 50),
                       ElevatedButton(
                         onPressed: loading ? null : validacaoCadastro,
 
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
+                          backgroundColor: fundoBranco,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 80,
                             vertical: 12,
@@ -192,7 +175,7 @@ class _CadastroState extends State<Cadastro> {
                         child: const Text(
                           "Cadastrar",
                           style: TextStyle(
-                            color: Colors.deepPurple,
+                            color: fundoRoxoTres,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),

@@ -1,6 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc/login.dart';
 import 'package:tcc/cadastro.dart';
+
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+
+import 'package:tcc/constants/texto_logo.dart';
 
 class CadOrLogin extends StatelessWidget {
   const CadOrLogin({super.key});
@@ -19,7 +25,7 @@ class CadOrLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 247, 247, 247),
+      backgroundColor: fundoRoxoTres,
       body: SafeArea(
         child: Column(
           children: [
@@ -29,7 +35,7 @@ class CadOrLogin extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: double.infinity,
-                      color: Color.fromARGB(255, 247, 247, 247),
+                      color: fundoRoxoTres,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 24, top: 24),
                         child: Row(
@@ -46,25 +52,17 @@ class CadOrLogin extends StatelessWidget {
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Padding(
-                                  padding: EdgeInsets.only(top: 10.0),
+                                  padding: const EdgeInsets.only(top: 10.0),
                                   child: Text(
-                                    "Guilo's Sound",
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 117, 95, 168),
-                                    ),
+                                    TextosLogo.nomeApp,
+                                    style: TextosLogo.titulo,
                                   ),
                                 ),
                                 Text(
-                                  "Sons Inteligentes",
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color.fromARGB(255, 117, 95, 168),
-                                  ),
+                                  TextosLogo.slogan,
+                                  style: TextosLogo.subtitulo,
                                 ),
                               ],
                             ),
@@ -75,7 +73,7 @@ class CadOrLogin extends StatelessWidget {
                   ),
                   Container(
                     width: double.infinity,
-                    color: Color.fromARGB(255, 247, 247, 247),
+                    color: fundoRoxoTres,
                     alignment: Alignment.bottomLeft,
                     padding: const EdgeInsets.only(left: 16, bottom: 16),
                     child: Column(
@@ -85,18 +83,20 @@ class CadOrLogin extends StatelessWidget {
                         Text(
                           "Seu melhor",
                           style: TextStyle(
-                            fontSize: 28,
+                            fontFamily: 'Urbanist',
+                            fontSize: 44,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 117, 95, 168),
+                            color: fundoBranco,
                           ),
                         ),
                         SizedBox(height: 8),
                         Text(
                           "amigo ouvinte!",
                           style: TextStyle(
-                            fontSize: 28,
+                            fontFamily: 'Urbanist',
+                            fontSize: 44,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 117, 95, 168),
+                            color: fundoBranco,
                           ),
                         ),
                       ],
@@ -109,7 +109,7 @@ class CadOrLogin extends StatelessWidget {
               height: 320,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 99, 59, 145),
+                color: fundoBranco,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -125,19 +125,20 @@ class CadOrLogin extends StatelessWidget {
                       onPressed: () => irLogin(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.deepPurple,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
-                          vertical: 16,
+                          vertical: 14,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(22),
                         ),
                       ),
                       child: const Text(
                         "Entrar com minha conta",
                         style: TextStyle(
                           fontSize: 20,
+                          fontFamily: 'Urbanist',
+                          color: fundoRoxoTres,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -153,7 +154,10 @@ class CadOrLogin extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
                             "OU",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: fundoRoxoTres,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         Expanded(child: Divider()),
@@ -165,20 +169,20 @@ class CadOrLogin extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => irCad(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.deepPurple,
+                        backgroundColor: fundoRoxoTres,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
-                          vertical: 16,
+                          vertical: 14,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(22),
                         ),
                       ),
                       child: const Text(
                         "Criar nova conta",
                         style: TextStyle(
                           fontSize: 20,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
