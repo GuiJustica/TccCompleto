@@ -63,7 +63,10 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
 
   void conectarDispositivo(BluetoothDevice device) async {
     try {
-      await device.connect();
+      await device.connect(
+        license: License.free, // <- obrigatório agora
+        timeout: const Duration(seconds: 35),
+      );
 
       final String nomeDispositivo =
           device.name.isNotEmpty ? device.name : 'Sem nome';
