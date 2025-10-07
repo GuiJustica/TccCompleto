@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/my_textfield.dart';
+import 'package:tcc/constants/my_textfield_wifi.dart';
 
 class CadastroHardware extends StatelessWidget {
   CadastroHardware({super.key});
@@ -41,14 +43,14 @@ class CadastroHardware extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      MyTextfield(
+                      MyTextfieldWifi(
                         controller: wifiController,
                         hintText: 'Rede Wi-Fi',
                         isPassword: false,
                         icon: Icons.wifi,
                       ),
                       const SizedBox(height: 10),
-                      MyTextfield(
+                      MyTextfieldWifi(
                         controller: senhaWifiController,
                         hintText: 'Senha do Wi-Fi',
                         isPassword: true,
@@ -111,13 +113,13 @@ class CadastroHardware extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: fundoBranco,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.black,
+          color: pretoLetra,
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),

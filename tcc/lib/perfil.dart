@@ -215,6 +215,18 @@ class _PerfilState extends State<Perfil> {
                                 ),
                               ),
                             ),
+                            IconButton(
+                              icon: Icon(
+                                editando ? Icons.check : Icons.edit,
+                                color: Colors.deepPurple,
+                              ),
+                              onPressed: () async {
+                                if (editando) {
+                                  await salvarDados(); // salva se estava editando
+                                }
+                                setState(() => editando = !editando);
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -261,43 +273,17 @@ class _PerfilState extends State<Perfil> {
                                 ),
 
                                 const SizedBox(height: 40),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    if (editando) {
-                                      await salvarDados();
-                                    }
-                                    setState(() => editando = !editando);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepPurple.shade100,
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 80,
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    editando ? "Salvar" : "Editar",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
                     ),
+                    Divider(),
                     Container(
-                      height: 80,
+                      height: 50,
                       width: double.infinity,
-                      color: Colors.deepPurple.shade100,
+                      color: fundoBranco,
                       child: Row(
                         children: [
                           Container(

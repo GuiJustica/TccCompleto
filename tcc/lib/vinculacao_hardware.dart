@@ -3,6 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 class VinculacaoHardware extends StatefulWidget {
   const VinculacaoHardware({super.key});
@@ -116,7 +117,30 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Vincular Hardware via BLE")),
+      appBar: AppBar(
+        backgroundColor: fundoRoxoTres,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Guilo's Sound",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Urbanist',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 30.0,
+            ), // controla distância da borda direita
+            child: Image.asset(
+              'assets/images/logobranco.png', // caminho da sua logo
+              height: 35, // altura da imagem
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           ElevatedButton.icon(
