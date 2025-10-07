@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 class CadastroHardware extends StatelessWidget {
@@ -10,9 +12,9 @@ class CadastroHardware extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: fundoBranco,
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: fundoRoxoTres,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -80,7 +82,7 @@ class CadastroHardware extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: fundoRoxoTres,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -89,6 +91,7 @@ class CadastroHardware extends StatelessWidget {
                     'Vincular',
                     style: TextStyle(
                       fontSize: 20,
+                      fontFamily: 'Urbanist',
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 1.2,

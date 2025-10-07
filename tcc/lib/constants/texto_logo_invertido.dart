@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
 
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 

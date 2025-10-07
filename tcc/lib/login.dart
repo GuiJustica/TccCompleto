@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tcc/services/auth_service.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
-import 'package:tcc/constants/CoresDefinidas/roxo_um.dart';
-import 'package:tcc/constants/CoresDefinidas/roxo_dois.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/texto_logo_invertido.dart';
 

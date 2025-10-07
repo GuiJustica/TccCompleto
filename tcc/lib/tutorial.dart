@@ -1,5 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'package:tcc/constants/drawer.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,96 +24,31 @@ class Tutorial extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: fundoRoxoTres,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Precisa de Ajuda?',
-
-          style: TextStyle(color: Colors.white),
+          "Guilo's Sound",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Urbanist',
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 30.0,
+            ), // controla distância da borda direita
+            child: Image.asset(
+              'assets/images/logobranco.png', // caminho da sua logo
+              height: 35, // altura da imagem
+            ),
+          ),
+        ],
       ),
-      drawer: Drawer(
-        backgroundColor: Colors.deepPurple.shade100,
-        child: Column(
-          children: [
-            Container(
-              height: 150,
-              color: Colors.deepPurple.shade100,
-              child: Center(
-                child: SizedBox(
-                  height: 60,
-                  child: Image.asset("assets/images/logo.png"),
-                ),
-              ),
-            ),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            ListTile(
-              leading: Icon(Icons.home, color: Colors.deepPurple),
-              title: Text(
-                "H O M E",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'home');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.person, color: Colors.deepPurple),
-              title: Text(
-                "P E R F I L",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'perfil');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.help, color: Colors.deepPurple),
-              title: Text(
-                "A J U D A",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'tutorial');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.settings, color: Colors.deepPurple),
-              title: Text(
-                "C O N F I G U R A Ç Õ E S",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'settings');
-              },
-            ),
-
-            Spacer(),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            ListTile(
-              leading: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationY(pi),
-                child: const Icon(Icons.exit_to_app, color: Colors.deepPurple),
-              ),
-              title: Text(
-                "S A I R",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.deepPurple.shade100,
+      drawer: AppDrawer(parentContext: context),
+      backgroundColor: fundoBranco,
       body: SafeArea(
         child: Column(
           children: [
@@ -126,7 +65,8 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "Produzimos uma série de vídeos em \n",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
                         ),
@@ -134,7 +74,8 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "LIBRAS ",
                         style: TextStyle(
-                          color: Colors.deepPurple,
+                          color: fundoRoxoTres,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.w900,
                           fontSize: 20,
                         ),
@@ -142,7 +83,8 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "para te ajudar!",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
                         ),
@@ -157,7 +99,7 @@ class Tutorial extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: fundoBranco,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -174,6 +116,8 @@ class Tutorial extends StatelessWidget {
                         title: Text(
                           "Sobre nós",
                           style: TextStyle(
+                            color: pretoLetra,
+                            fontFamily: 'Urbanist',
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2,
                           ),
@@ -183,7 +127,11 @@ class Tutorial extends StatelessWidget {
                           ListTile(
                             title: Text(
                               "Quem somos?",
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                color: pretoLetra,
+                                fontFamily: 'Urbanist',
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             trailing: Image.asset('assets/images/youtube.png'),
                             onTap:
@@ -195,7 +143,11 @@ class Tutorial extends StatelessWidget {
                           ListTile(
                             title: Text(
                               "O que é Guilo's Sound?",
-                              style: TextStyle(fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                color: pretoLetra,
+                                fontFamily: 'Urbanist',
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             trailing: Image.asset('assets/images/youtube.png'),
                             onTap: () => {},
@@ -208,6 +160,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Telas do aplicativo",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -218,7 +172,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Explicação de cada tela!",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -227,7 +185,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "O que é Guilo's Sound?",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -238,6 +200,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Cadastro e Login",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -247,7 +211,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Cadastro",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -256,7 +224,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Login",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -267,6 +239,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Cadastro do seu amigo ouvinte",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -276,7 +250,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Como e o que fazer?",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -287,6 +265,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Estatisticas do seu amigo ouvinte",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -296,7 +276,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Pra que servem?",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -307,6 +291,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Meu perfil",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -316,7 +302,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Minhas informações servem pra que?",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -327,6 +317,8 @@ class Tutorial extends StatelessWidget {
                       title: Text(
                         "Configurações",
                         style: TextStyle(
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
@@ -336,7 +328,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Notificações",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -345,7 +341,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Não sei",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -354,7 +354,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Não sei",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -363,7 +367,11 @@ class Tutorial extends StatelessWidget {
                         ListTile(
                           title: Text(
                             "Não sei",
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
                           onTap: () => {},
@@ -387,7 +395,8 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "Qualquer dúvida ou sugestão\n",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
                         ),
@@ -395,7 +404,8 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "nos avise! ",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
                         ),
@@ -403,8 +413,9 @@ class Tutorial extends StatelessWidget {
                       TextSpan(
                         text: "guilosuporte@gmail.com",
                         style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
+                          color: pretoLetra,
+                          fontFamily: 'Urbanist',
+                          fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                       ),

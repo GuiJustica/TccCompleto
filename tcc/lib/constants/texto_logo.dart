@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
 
-import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
-
 class TextosLogo {
   static const TextStyle titulo = TextStyle(
     fontSize: 28,

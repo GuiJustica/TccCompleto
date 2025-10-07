@@ -2,6 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'package:tcc/constants/drawer.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -41,55 +45,31 @@ class _MyHomePageState extends State<MyHomePage> {
         .child('dispositivos');
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: fundoRoxoTres,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Home', style: TextStyle(color: Colors.white)),
-      ),
-      drawer: Drawer(
-        backgroundColor: Colors.deepPurple.shade100,
-        child: Column(
-          children: [
-            Container(
-              height: 150,
-              color: Colors.deepPurple.shade100,
-              child: Center(
-                child: SizedBox(
-                  height: 60,
-                  child: Image.asset("assets/images/logo.png"),
-                ),
-              ),
-            ),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            _buildDrawerItem(Icons.home, "H O M E", 'home'),
-            _buildDrawerItem(Icons.person, "P E R F I L", 'perfil'),
-            _buildDrawerItem(Icons.help, "A J U D A", 'tutorial'),
-            _buildDrawerItem(
-              Icons.settings,
-              "C O N F I G U R A Ç Õ E S",
-              'settings',
-            ),
-            const Spacer(),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            ListTile(
-              leading: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationY(pi),
-                child: const Icon(Icons.exit_to_app, color: Colors.deepPurple),
-              ),
-              title: const Text(
-                "S A I R",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, 'login');
-              },
-            ),
-          ],
+        title: const Text(
+          "Guilo's Sound",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Urbanist',
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 30.0,
+            ), // controla distância da borda direita
+            child: Image.asset(
+              'assets/images/logobranco.png', // caminho da sua logo
+              height: 35, // altura da imagem
+            ),
+          ),
+        ],
       ),
-      backgroundColor: Colors.white,
+      drawer: AppDrawer(parentContext: context),
+      backgroundColor: fundoBranco,
       body: Column(
         children: [
           Container(
@@ -104,8 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     "Dispositivos",
                     style: TextStyle(
                       fontSize: 20,
+                      fontFamily: 'Urbanist',
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: pretoAzulado,
                     ),
                   ),
                   IconButton(
@@ -113,14 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       Navigator.pushNamed(context, 'cadastroHardware');
                     },
                     icon: const Icon(Icons.add_circle_outline),
-                    color: Colors.deepPurple,
+                    color: fundoRoxoTres,
                   ),
                   IconButton(
                     onPressed: () {
                       // futuro: editar layout
                     },
                     icon: const Icon(Icons.brush),
-                    color: Colors.deepPurple,
+                    color: fundoRoxoTres,
                   ),
                 ],
               ),
@@ -137,7 +118,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (!snapshot.hasData ||
                     snapshot.data!.snapshot.value == null) {
                   return const Center(
-                    child: Text('Nenhum dispositivo vinculado ainda.'),
+                    child: Text(
+                      'Adicione um novo dispositivo!',
+                      style: TextStyle(
+                        fontFamily: 'Urbanist',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   );
                 }
 
@@ -189,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               const Icon(
                                 Icons.memory,
                                 size: 40,
-                                color: Colors.deepPurple,
+                                color: fundoRoxoTres,
                               ),
                               const SizedBox(height: 10),
                               Text(
@@ -225,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   ListTile _buildDrawerItem(IconData icon, String label, String route) {
     return ListTile(
-      leading: Icon(icon, color: Colors.deepPurple),
+      leading: Icon(icon, color: fundoRoxoTres),
       title: Text(
         label,
         style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),

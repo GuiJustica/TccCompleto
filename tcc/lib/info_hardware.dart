@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 enum _Rooms {
   sala('Sala'),
@@ -56,28 +59,51 @@ class _InfoHardwareState extends State<InfoHardware> {
                 children: [
                   Text(
                     'Configurações de Notificação',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(
+                      color: pretoLetra,
+                      fontFamily: 'Urbanist',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                   CheckboxListTile(
                     value: notificacaoVisual,
-                    title: Text('Notificação Visual'),
-                    activeColor: Colors.deepPurple,
+                    title: Text(
+                      'Notificação Visual',
+                      style: TextStyle(
+                        color: pretoLetra,
+                        fontFamily: 'Urbanist',
+                      ),
+                    ),
+                    activeColor: fundoRoxoTres,
                     onChanged: (value) {
                       setModalState(() => notificacaoVisual = value!);
                     },
                   ),
                   CheckboxListTile(
                     value: notificacaoSom,
-                    title: Text('Notificação com Som'),
-                    activeColor: Colors.deepPurple,
+                    title: Text(
+                      'Notificação com Som',
+                      style: TextStyle(
+                        color: pretoLetra,
+                        fontFamily: 'Urbanist',
+                      ),
+                    ),
+                    activeColor: fundoRoxoTres,
                     onChanged: (value) {
                       setModalState(() => notificacaoSom = value!);
                     },
                   ),
                   CheckboxListTile(
                     value: notificacaoVibracao,
-                    title: Text('Notificação com Vibração'),
-                    activeColor: Colors.deepPurple,
+                    title: Text(
+                      'Notificação com Vibração',
+                      style: TextStyle(
+                        color: pretoLetra,
+                        fontFamily: 'Urbanist',
+                      ),
+                    ),
+                    activeColor: fundoRoxoTres,
                     onChanged: (value) {
                       setModalState(() => notificacaoVibracao = value!);
                     },
@@ -94,8 +120,7 @@ class _InfoHardwareState extends State<InfoHardware> {
                     icon: Icon(Icons.check),
                     label: Text('Salvar'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
+                      backgroundColor: fundoRoxoTres,
                     ),
                   ),
                 ],
@@ -118,7 +143,7 @@ class _InfoHardwareState extends State<InfoHardware> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: fundoBranco,
       body: SafeArea(
         child: StreamBuilder<DatabaseEvent>(
           stream: ref.onValue,
@@ -148,7 +173,7 @@ class _InfoHardwareState extends State<InfoHardware> {
                   height: 180,
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                    color: Colors.deepPurple,
+                    color: fundoRoxoTres,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30),
@@ -192,6 +217,8 @@ class _InfoHardwareState extends State<InfoHardware> {
                               const Text(
                                 "Ambiente:",
                                 style: TextStyle(
+                                  color: pretoLetra,
+                                  fontFamily: 'Urbanist',
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -236,9 +263,7 @@ class _InfoHardwareState extends State<InfoHardware> {
                               OutlinedButton(
                                 onPressed: () {},
                                 style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                    color: Colors.deepPurple,
-                                  ),
+                                  side: const BorderSide(color: fundoRoxoTres),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -248,14 +273,12 @@ class _InfoHardwareState extends State<InfoHardware> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
-                                    color: Colors.deepPurple,
+                                    color: pretoLetra,
+                                    fontFamily: 'Urbanist',
                                   ),
                                 ),
                               ),
-                              const Divider(
-                                thickness: 1,
-                                color: Colors.deepPurple,
-                              ),
+                              const Divider(thickness: 1, color: fundoRoxoTres),
                               const SizedBox(height: 10),
                               Row(
                                 mainAxisAlignment:
@@ -266,6 +289,8 @@ class _InfoHardwareState extends State<InfoHardware> {
                                       Text(
                                         "Horário",
                                         style: TextStyle(
+                                          color: pretoLetra,
+                                          fontFamily: 'Urbanist',
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -278,6 +303,8 @@ class _InfoHardwareState extends State<InfoHardware> {
                                       Text(
                                         "Som",
                                         style: TextStyle(
+                                          color: pretoLetra,
+                                          fontFamily: 'Urbanist',
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -290,6 +317,8 @@ class _InfoHardwareState extends State<InfoHardware> {
                                       Text(
                                         "Intensidade",
                                         style: TextStyle(
+                                          color: pretoLetra,
+                                          fontFamily: 'Urbanist',
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -307,7 +336,6 @@ class _InfoHardwareState extends State<InfoHardware> {
                           onPressed: () => _abrirConfiguracoes(context),
                           style: FilledButton.styleFrom(
                             backgroundColor: Colors.deepPurple.shade100,
-                            foregroundColor: Colors.deepPurple,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 12,
@@ -318,7 +346,8 @@ class _InfoHardwareState extends State<InfoHardware> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.deepPurple,
+                              color: pretoLetra,
+                              fontFamily: 'Urbanist',
                             ),
                           ),
                         ),
@@ -333,13 +362,17 @@ class _InfoHardwareState extends State<InfoHardware> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: fundoRoxoTres,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       icon: const Icon(Icons.save, color: Colors.white),
                       label: const Text(
                         'Salvar',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(
+                          fontFamily: 'Urbanist',
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
                       ),
                       onPressed: () => salvarNoFirebase(deviceId, userId),
                     ),

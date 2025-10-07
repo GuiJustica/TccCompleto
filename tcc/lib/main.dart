@@ -14,6 +14,7 @@ import 'package:tcc/tutorial.dart';
 import 'package:tcc/info_hardware.dart';
 import 'package:tcc/vinculacao_hardware.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: MyHomePage(),
       routes: {
         'home': (context) => MyHomePage(),
         'cadorlogin': (context) => CadOrLogin(),

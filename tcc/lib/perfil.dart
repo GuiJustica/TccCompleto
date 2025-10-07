@@ -3,6 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'package:tcc/constants/drawer.dart';
 import 'package:tcc/constants/my_textformfield.dart';
 
 class Perfil extends StatefulWidget {
@@ -19,8 +24,6 @@ class _PerfilState extends State<Perfil> {
   final nomeController = TextEditingController();
   final emailController = TextEditingController();
   final telefoneController = TextEditingController();
-  final passwordController = TextEditingController();
-  final surdezController = TextEditingController();
 
   bool loading = false;
   bool editando = false;
@@ -79,7 +82,6 @@ class _PerfilState extends State<Perfil> {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
         nomeController.text = data['nome'] ?? '';
         telefoneController.text = data['telefone'] ?? '';
-        surdezController.text = data['grauSurdez'] ?? '';
       }
     } catch (e) {
       debugPrint('Erro ao carregar dados: $e');
@@ -97,7 +99,6 @@ class _PerfilState extends State<Perfil> {
       await database.child('usuarios/${user!.uid}').update({
         'nome': nomeController.text.trim(),
         'telefone': telefoneController.text.trim(),
-        'grauSurdez': surdezController.text.trim(),
       });
 
       if (!mounted) return;
@@ -120,100 +121,39 @@ class _PerfilState extends State<Perfil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: fundoRoxoTres,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Perfil', style: TextStyle(color: Colors.white)),
-      ),
-      drawer: Drawer(
-        backgroundColor: Colors.deepPurple.shade100,
-        child: Column(
-          children: [
-            Container(
-              height: 150,
-              color: Colors.deepPurple.shade100,
-              child: Center(
-                child: SizedBox(
-                  height: 60,
-                  child: Image.asset("assets/images/logo.png"),
-                ),
-              ),
-            ),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            ListTile(
-              leading: Icon(Icons.home, color: Colors.deepPurple),
-              title: Text(
-                "H O M E",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'home');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.person, color: Colors.deepPurple),
-              title: Text(
-                "P E R F I L",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'perfil');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.help, color: Colors.deepPurple),
-              title: Text(
-                "A J U D A",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'tutorial');
-              },
-            ),
-
-            ListTile(
-              leading: Icon(Icons.settings, color: Colors.deepPurple),
-              title: Text(
-                "C O N F I G U R A Ç Õ E S",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, 'settings');
-              },
-            ),
-
-            Spacer(),
-            Divider(thickness: 1, color: Colors.grey[300]),
-            ListTile(
-              leading: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationY(pi),
-                child: const Icon(Icons.exit_to_app, color: Colors.deepPurple),
-              ),
-              title: Text(
-                "S A I R",
-                style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {},
-            ),
-          ],
+        title: const Text(
+          "Guilo's Sound",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Urbanist',
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 30.0,
+            ), // controla distância da borda direita
+            child: Image.asset(
+              'assets/images/logobranco.png', // caminho da sua logo
+              height: 35, // altura da imagem
+            ),
+          ),
+        ],
       ),
-      backgroundColor: Colors.deepPurple.shade100,
+      drawer: AppDrawer(parentContext: context),
+      backgroundColor: fundoBranco,
       body:
           loading
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
                 child: Column(
                   children: [
-                    // Cabeçalho com avatar, nome e botão
                     Container(
                       height: 100,
                       width: double.infinity,
@@ -243,7 +183,8 @@ class _PerfilState extends State<Perfil> {
                                     const TextSpan(
                                       text: "Olá, ",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color: pretoAzulado,
+                                        fontFamily: 'Urbanist',
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
                                       ),
@@ -262,9 +203,10 @@ class _PerfilState extends State<Perfil> {
                                       ),
                                     ),
                                     const TextSpan(
-                                      text: "!",
+                                      text: " !",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color: pretoAzulado,
+                                        fontFamily: 'Urbanist',
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
                                       ),
@@ -285,7 +227,7 @@ class _PerfilState extends State<Perfil> {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: fundoBranco,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(30),
                             topRight: Radius.circular(30),
@@ -307,7 +249,7 @@ class _PerfilState extends State<Perfil> {
                                 MyTextformfield(
                                   controller: emailController,
                                   hintText: 'E-mail',
-                                  enabled: false, // e-mail não editável
+                                  enabled: false,
                                   isPassword: false,
                                 ),
                                 MyTextformfield(
@@ -315,20 +257,9 @@ class _PerfilState extends State<Perfil> {
                                   hintText: 'Telefone',
                                   enabled: editando,
                                   isPassword: false,
+                                  isPhone: true,
                                 ),
-                                MyTextformfield(
-                                  controller: passwordController,
-                                  hintText: 'Senha (não editável aqui)',
-                                  enabled:
-                                      false, // por segurança, não alterável aqui
-                                  isPassword: true,
-                                ),
-                                MyTextformfield(
-                                  controller: surdezController,
-                                  hintText: 'Grau de Surdez',
-                                  enabled: editando,
-                                  isPassword: false,
-                                ),
+
                                 const SizedBox(height: 40),
                                 ElevatedButton(
                                   onPressed: () async {
@@ -430,8 +361,8 @@ class _PerfilState extends State<Perfil> {
                                   "Excluir conta",
                                   style: TextStyle(
                                     fontSize: 20,
-                                    color: Colors.deepPurple,
-                                    fontWeight: FontWeight.bold,
+                                    color: pretoAzulado,
+                                    fontFamily: 'Urbanist',
                                   ),
                                 ),
                               ),
@@ -442,7 +373,7 @@ class _PerfilState extends State<Perfil> {
                             child: IconButton(
                               onPressed: () {},
                               icon: const Icon(Icons.delete_forever),
-                              color: Colors.deepPurple,
+                              color: pretoAzulado,
                             ),
                           ),
                         ],

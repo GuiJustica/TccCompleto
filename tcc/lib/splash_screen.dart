@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tcc/cad_or_login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'my_home_page.dart';
+import 'cad_or_login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,14 +29,23 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-    Future.delayed(const Duration(seconds: 4), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => CadOrLogin()),
-        );
-      }
-    });
+    _checkUser();
+  }
+
+  Future<void> _checkUser() async {
+    await Future.delayed(const Duration(seconds: 4)); // mantém a splash
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => user != null ? const MyHomePage() : const CadOrLogin(),
+        ),
+      );
+    }
   }
 
   @override
@@ -51,9 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 249, 235, 255),
-        ),
+        decoration: const BoxDecoration(color: fundoRoxoTres),
         child: SafeArea(
           child: FadeTransition(
             opacity: _animation,
@@ -62,16 +72,16 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 SizedBox(
                   height: 150,
-                  child: Image(
-                    image: AssetImage('assets/images/logo.png'),
+                  child: Image.asset(
+                    'assets/images/logobranco.png',
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 const Text(
                   "Guilo's Sound",
                   style: TextStyle(
-                    color: Color.fromARGB(255, 117, 95, 168),
+                    color: Colors.white,
+                    fontFamily: 'Urbanist',
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
