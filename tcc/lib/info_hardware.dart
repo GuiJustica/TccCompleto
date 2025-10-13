@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
-import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 enum _Rooms {
   sala('Sala'),
   quarto('Quarto'),
-  cozinha('Cozinha');
+  cozinha('Cozinha'),
+  garagem('Garagem'),
+  outro('Outro');
 
   final String label;
   const _Rooms(this.label);
@@ -26,118 +27,116 @@ class _InfoHardwareState extends State<InfoHardware> {
   bool notificacaoSom = false;
   bool notificacaoVibracao = false;
   _Rooms? selectedRoom;
-  bool carregouDados = false;
+  bool ligado = false;
+  final TextEditingController nomeController = TextEditingController();
+
+  bool carregado = false;
 
   void salvarNoFirebase(String deviceId, String userId) async {
     await FirebaseDatabase.instance
         .ref('usuarios/$userId/dispositivos/$deviceId')
         .update({
+          'nome':
+              nomeController.text.trim().isEmpty
+                  ? 'Sem nome'
+                  : nomeController.text.trim(),
           'ambiente': selectedRoom?.label ?? 'Indefinido',
           'notificacaoVisual': notificacaoVisual,
           'notificacaoSom': notificacaoSom,
           'notificacaoVibracao': notificacaoVibracao,
         });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Configurações salvas com sucesso')));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Configurações salvas com sucesso')),
+    );
   }
 
-  void _abrirConfiguracoes(BuildContext context) {
-    showModalBottomSheet(
+  void removerDispositivo(String deviceId, String userId) async {
+    final confirm = await showDialog<bool>(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Configurações de Notificação',
-                    style: TextStyle(
-                      color: pretoLetra,
-                      fontFamily: 'Urbanist',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  CheckboxListTile(
-                    value: notificacaoVisual,
-                    title: Text(
-                      'Notificação Visual',
-                      style: TextStyle(
-                        color: pretoLetra,
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                    activeColor: fundoRoxoTres,
-                    onChanged: (value) {
-                      setModalState(() => notificacaoVisual = value!);
-                    },
-                  ),
-                  CheckboxListTile(
-                    value: notificacaoSom,
-                    title: Text(
-                      'Notificação com Som',
-                      style: TextStyle(
-                        color: pretoLetra,
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                    activeColor: fundoRoxoTres,
-                    onChanged: (value) {
-                      setModalState(() => notificacaoSom = value!);
-                    },
-                  ),
-                  CheckboxListTile(
-                    value: notificacaoVibracao,
-                    title: Text(
-                      'Notificação com Vibração',
-                      style: TextStyle(
-                        color: pretoLetra,
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                    activeColor: fundoRoxoTres,
-                    onChanged: (value) {
-                      setModalState(() => notificacaoVibracao = value!);
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Configurações salvas')),
-                      );
-                      setState(() {});
-                    },
-                    icon: Icon(Icons.check),
-                    label: Text('Salvar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: fundoRoxoTres,
-                    ),
-                  ),
-                ],
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Remover dispositivo'),
+            content: const Text(
+              'Tem certeza que deseja remover este dispositivo?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
               ),
-            );
-          },
-        );
-      },
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Remover'),
+              ),
+            ],
+          ),
     );
+    if (confirm != true) return;
+
+    await FirebaseDatabase.instance
+        .ref('usuarios/$userId/dispositivos/$deviceId')
+        .remove();
+
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, 'home', (_) => false);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Dispositivo removido')));
+  }
+
+  void carregarDadosIniciais(
+    String deviceId,
+    String userId,
+    String nomeDispositivo,
+  ) async {
+    final snapshot =
+        await FirebaseDatabase.instance
+            .ref('usuarios/$userId/dispositivos/$deviceId')
+            .get();
+
+    final data = snapshot.value as Map<dynamic, dynamic>?;
+
+    if (data != null && mounted) {
+      setState(() {
+        nomeController.text = data['nome'] ?? nomeDispositivo;
+        notificacaoVisual = data['notificacaoVisual'] ?? true;
+        notificacaoSom = data['notificacaoSom'] ?? false;
+        notificacaoVibracao = data['notificacaoVibracao'] ?? false;
+        selectedRoom = _Rooms.values.firstWhere(
+          (r) => r.label == (data['ambiente'] ?? 'Sala'),
+          orElse: () => _Rooms.sala,
+        );
+        carregado = true;
+      });
+    } else {
+      setState(() => carregado = true);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!carregado) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      final String deviceId = args['id'];
+      final String nomeDispositivo = args['nome'] ?? 'Sem nome';
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      carregarDadosIniciais(deviceId, userId, nomeDispositivo);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
     final String deviceId = args['id'];
-    final String nomeDispositivo = args['nome'] ?? 'Sem nome';
     final userId = FirebaseAuth.instance.currentUser!.uid;
+
+    if (!carregado) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final ref = FirebaseDatabase.instance.ref(
       'usuarios/$userId/dispositivos/$deviceId',
     );
@@ -148,233 +147,194 @@ class _InfoHardwareState extends State<InfoHardware> {
         child: StreamBuilder<DatabaseEvent>(
           stream: ref.onValue,
           builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final data = snapshot.data!.snapshot.value as Map;
-
-            if (!carregouDados) {
-              notificacaoVisual = data['notificacaoVisual'] ?? true;
-              notificacaoSom = data['notificacaoSom'] ?? false;
-              notificacaoVibracao = data['notificacaoVibracao'] ?? false;
-
-              selectedRoom = _Rooms.values.firstWhere(
-                (room) => room.label == (data['ambiente'] ?? 'Sala'),
-                orElse: () => _Rooms.sala,
-              );
-
-              carregouDados = true;
-            }
-
             return Column(
               children: [
                 Container(
-                  height: 180,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: fundoRoxoTres,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
+                  color: fundoRoxoTres,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Row(
                     children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      ),
+                      const Spacer(),
                       Text(
-                        nomeDispositivo,
-                        style: TextStyle(
-                          fontSize: 24,
+                        nomeController.text.isNotEmpty
+                            ? nomeController.text
+                            : 'Sem nome',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
-                      SizedBox(height: 12),
-                      Image.asset(
-                        'assets/images/rasp.png',
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => removerDispositivo(deviceId, userId),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: Colors.redAccent,
+                          size: 26,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Text(
-                                "Ambiente:",
-                                style: TextStyle(
-                                  color: pretoLetra,
-                                  fontFamily: 'Urbanist',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: DropdownButtonFormField<_Rooms>(
-                                  value: selectedRoom,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Nome
+                                TextField(
+                                  controller: nomeController,
                                   decoration: const InputDecoration(
+                                    labelText: "Nome do dispositivo",
                                     border: OutlineInputBorder(),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Ambiente
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                      255,
+                                      209,
+                                      196,
+                                      233,
                                     ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  items:
-                                      _Rooms.values.map((room) {
-                                        return DropdownMenuItem<_Rooms>(
-                                          value: room,
-                                          child: Text(room.label),
-                                        );
-                                      }).toList(),
-                                  onChanged: (_Rooms? room) {
-                                    setState(() => selectedRoom = room);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple.shade100,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              OutlinedButton(
-                                onPressed: () {},
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: fundoRoxoTres),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        "Ambiente:",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: DropdownButtonFormField<_Rooms>(
+                                          value: selectedRoom,
+                                          decoration: const InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          items:
+                                              _Rooms.values
+                                                  .map(
+                                                    (room) => DropdownMenuItem<
+                                                      _Rooms
+                                                    >(
+                                                      value: room,
+                                                      child: Text(room.label),
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                          onChanged: (_Rooms? room) {
+                                            if (!mounted) return;
+                                            setState(() => selectedRoom = room);
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: const Text(
-                                  "Ver todos os registros",
+                                const SizedBox(height: 20),
+
+                                // Notificações
+                                const Text(
+                                  "Notificações",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: pretoLetra,
-                                    fontFamily: 'Urbanist',
+                                    fontSize: 18,
                                   ),
                                 ),
-                              ),
-                              const Divider(thickness: 1, color: fundoRoxoTres),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Column(
-                                    children: const [
-                                      Text(
-                                        "Horário",
-                                        style: TextStyle(
-                                          color: pretoLetra,
-                                          fontFamily: 'Urbanist',
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                CheckboxListTile(
+                                  value: notificacaoVisual,
+                                  title: const Text('Notificação Visual'),
+                                  activeColor: fundoRoxoTres,
+                                  onChanged:
+                                      (v) => setState(
+                                        () => notificacaoVisual = v ?? true,
                                       ),
-                                      SizedBox(height: 4),
-                                      Text("14:35"),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: const [
-                                      Text(
-                                        "Som",
-                                        style: TextStyle(
-                                          color: pretoLetra,
-                                          fontFamily: 'Urbanist',
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                ),
+                                CheckboxListTile(
+                                  value: notificacaoSom,
+                                  title: const Text('Notificação com Som'),
+                                  activeColor: fundoRoxoTres,
+                                  onChanged:
+                                      (v) => setState(
+                                        () => notificacaoSom = v ?? false,
                                       ),
-                                      SizedBox(height: 4),
-                                      Text("Cachorro Latindo"),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: const [
-                                      Text(
-                                        "Intensidade",
-                                        style: TextStyle(
-                                          color: pretoLetra,
-                                          fontFamily: 'Urbanist',
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                ),
+                                CheckboxListTile(
+                                  value: notificacaoVibracao,
+                                  title: const Text('Notificação com Vibração'),
+                                  activeColor: fundoRoxoTres,
+                                  onChanged:
+                                      (v) => setState(
+                                        () => notificacaoVibracao = v ?? false,
                                       ),
-                                      SizedBox(height: 4),
-                                      Text("0.82"),
-                                    ],
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Status
+                                SwitchListTile.adaptive(
+                                  title: const Text(
+                                    'Status do dispositivo',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ],
+                                  value: ligado,
+                                  onChanged: (v) => setState(() => ligado = v),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
-                        FilledButton.tonal(
-                          onPressed: () => _abrirConfiguracoes(context),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Colors.deepPurple.shade100,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                          ),
-                          child: const Text(
-                            'Configurações avançadas',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: pretoLetra,
-                              fontFamily: 'Urbanist',
-                            ),
+                        OutlinedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.history),
+                          label: const Text("Ver todos registros"),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
                           ),
                         ),
-                        const SizedBox(height: 100),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => salvarNoFirebase(deviceId, userId),
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          label: const Text(
+                            "Salvar",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 52),
+                            backgroundColor: fundoRoxoTres,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                       ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: fundoRoxoTres,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      icon: const Icon(Icons.save, color: Colors.white),
-                      label: const Text(
-                        'Salvar',
-                        style: TextStyle(
-                          fontFamily: 'Urbanist',
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onPressed: () => salvarNoFirebase(deviceId, userId),
                     ),
                   ),
                 ),

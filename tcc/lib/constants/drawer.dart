@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
+import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 class AppDrawer extends StatelessWidget {
   final BuildContext parentContext; // para navegação
@@ -23,7 +25,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          Divider(thickness: 1, color: Colors.grey[300]),
+          Divider(thickness: 1, color: pretoAzulado),
           _buildListTile(
             icon: Icons.home,
             title: "H O M E",
@@ -57,12 +59,12 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           Spacer(),
-          Divider(thickness: 1, color: Colors.grey[300]),
+          Divider(thickness: 1, color: pretoAzulado),
           _buildListTile(
             iconWidget: Transform(
               alignment: Alignment.center,
               transform: Matrix4.rotationY(pi),
-              child: const Icon(Icons.exit_to_app, color: Colors.deepPurple),
+              child: const Icon(Icons.exit_to_app, color: fundoRoxoTres),
             ),
             title: "S A I R",
             onTap: () async {
@@ -93,7 +95,7 @@ class AppDrawer extends StatelessWidget {
     return ListTile(
       leading:
           iconWidget ??
-          (icon != null ? Icon(icon, color: Colors.deepPurple) : null),
+          (icon != null ? Icon(icon, color: fundoRoxoTres) : null),
       title: Text(
         title,
         style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),

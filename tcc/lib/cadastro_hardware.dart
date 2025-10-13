@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
 import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
-import 'package:tcc/constants/my_textfield.dart';
+
 import 'package:tcc/constants/my_textfield_wifi.dart';
 
 class CadastroHardware extends StatelessWidget {

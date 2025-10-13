@@ -1,9 +1,9 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
 import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/drawer.dart';
 
@@ -17,6 +17,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late final DatabaseReference dispositivosRef;
+
+  int filtroIndex = 0; // 0 = alfabética, 1 = ambiente, 2 = criação
 
   @override
   void initState() {
@@ -96,12 +98,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: const Icon(Icons.add_circle_outline),
                     color: fundoRoxoTres,
                   ),
+                  const Spacer(),
                   IconButton(
                     onPressed: () {
-                      // futuro: editar layout
+                      setState(() {
+                        filtroIndex = (filtroIndex + 1) % 3; // ciclo
+                      });
                     },
                     icon: const Icon(Icons.brush),
                     color: fundoRoxoTres,
+                    tooltip:
+                        filtroIndex == 0
+                            ? "Ordenar por nome"
+                            : filtroIndex == 1
+                            ? "Ordenar por ambiente"
+                            : "Ordenar por criação",
                   ),
                 ],
               ),
@@ -130,6 +141,38 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 final data = snapshot.data!.snapshot.value as Map;
                 final dispositivos = data.entries.toList();
+
+                // Ordenação baseada no filtroIndex
+                switch (filtroIndex) {
+                  case 0: // ordem alfabética
+                    dispositivos.sort((a, b) {
+                      final nomeA =
+                          (a.value as Map)['nome']?.toString().toLowerCase() ??
+                          '';
+                      final nomeB =
+                          (b.value as Map)['nome']?.toString().toLowerCase() ??
+                          '';
+                      return nomeA.compareTo(nomeB);
+                    });
+                    break;
+                  case 1: // por ambiente
+                    dispositivos.sort((a, b) {
+                      final ambA =
+                          (a.value as Map)['ambiente']
+                              ?.toString()
+                              .toLowerCase() ??
+                          '';
+                      final ambB =
+                          (b.value as Map)['ambiente']
+                              ?.toString()
+                              .toLowerCase() ??
+                          '';
+                      return ambA.compareTo(ambB);
+                    });
+                    break;
+                  case 2: // ordem de criação (original)
+                    break;
+                }
 
                 return Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -180,18 +223,21 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                dispositivo['nome'] ?? 'Sem nome',
+                                dispositivo['nome'] ?? 'Não Informado',
                                 style: const TextStyle(
+                                  fontFamily: 'Urbanist',
+                                  color: pretoLetra,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                dispositivo['id'] ?? '',
+                                dispositivo['ambiente'] ?? 'Não Informado',
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey,
+                                  fontFamily: 'Urbanist',
+                                  color: pretoLetra,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -207,20 +253,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-    );
-  }
-
-  ListTile _buildDrawerItem(IconData icon, String label, String route) {
-    return ListTile(
-      leading: Icon(icon, color: fundoRoxoTres),
-      title: Text(
-        label,
-        style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-      ),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.pushNamed(context, route);
-      },
     );
   }
 }

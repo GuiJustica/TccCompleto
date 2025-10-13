@@ -63,18 +63,29 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
   }
 
   void conectarDispositivo(BluetoothDevice device) async {
+    // Mostra loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
     try {
-      await device.connect(
-        license: License.free, // <- obrigatório agora
-        timeout: const Duration(seconds: 35),
-      );
+      // Tenta conectar com timeout de 20 segundos
+      await device
+          .connect(license: License.free)
+          .timeout(
+            const Duration(seconds: 20),
+            onTimeout: () {
+              throw Exception('Tempo de conexão esgotado');
+            },
+          );
 
       final String nomeDispositivo =
           device.name.isNotEmpty ? device.name : 'Sem nome';
       final String idDispositivo = device.id.toString();
       final String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      // Estrutura para salvar
       final Map<String, dynamic> dadosDispositivo = {
         'nome': nomeDispositivo,
         'id': idDispositivo,
@@ -83,28 +94,37 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
         'criado_em': DateTime.now().toIso8601String(),
       };
 
-      // Caminho: /usuarios/uid/dispositivos/gerado_por_push()
-      final DatabaseReference ref = FirebaseDatabase.instance
-          .ref()
-          .child('usuarios')
-          .child(uid)
-          .child('dispositivos');
+      final DatabaseReference ref = FirebaseDatabase.instance.ref(
+        'usuarios/$uid/dispositivos',
+      );
 
       await ref.push().set(dadosDispositivo);
 
-      debugPrint("[DEBUG] Dispositivo salvo no Firebase Realtime");
+      // Fecha loading
+      if (mounted) Navigator.pop(context);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Dispositivo conectado e salvo')));
+      // Mostra mensagem de sucesso
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dispositivo conectado e salvo')),
+        );
+      }
 
-      // Voltar à tela principal
-      Navigator.popUntil(context, ModalRoute.withName('home'));
+      // Volta para tela inicial (Home)
+      if (mounted) Navigator.pop(context);
     } catch (e) {
-      debugPrint("[ERRO] Falha ao conectar ou salvar: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao conectar: $e')));
+      // Fecha loading caso haja erro
+      if (mounted) Navigator.pop(context);
+
+      // Mostra mensagem de erro
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao conectar: $e')));
+      }
+    } finally {
+      // Para qualquer scan em andamento
+      FlutterBluePlus.stopScan();
     }
   }
 

@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
-import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
 import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/drawer.dart';
@@ -183,7 +180,7 @@ class _PerfilState extends State<Perfil> {
                                     const TextSpan(
                                       text: "Olá, ",
                                       style: TextStyle(
-                                        color: pretoAzulado,
+                                        color: pretoLetra,
                                         fontFamily: 'Urbanist',
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
@@ -205,7 +202,7 @@ class _PerfilState extends State<Perfil> {
                                     const TextSpan(
                                       text: " !",
                                       style: TextStyle(
-                                        color: pretoAzulado,
+                                        color: pretoLetra,
                                         fontFamily: 'Urbanist',
                                         fontWeight: FontWeight.w500,
                                         fontSize: 20,
@@ -347,7 +344,7 @@ class _PerfilState extends State<Perfil> {
                                   "Excluir conta",
                                   style: TextStyle(
                                     fontSize: 20,
-                                    color: pretoAzulado,
+                                    color: pretoLetra,
                                     fontFamily: 'Urbanist',
                                   ),
                                 ),
@@ -359,7 +356,7 @@ class _PerfilState extends State<Perfil> {
                             child: IconButton(
                               onPressed: () {},
                               icon: const Icon(Icons.delete_forever),
-                              color: pretoAzulado,
+                              color: pretoLetra,
                             ),
                           ),
                         ],
