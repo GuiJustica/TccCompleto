@@ -241,6 +241,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 5),
+                              Text(
+                                dispositivo['id'] ?? 'Não Informado',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Urbanist',
+                                  color: pretoLetra,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                         ),

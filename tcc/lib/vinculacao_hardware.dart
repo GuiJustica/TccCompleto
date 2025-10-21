@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+
+import 'package:http/http.dart' as http;
 
 class VinculacaoHardware extends StatefulWidget {
   const VinculacaoHardware({super.key});
@@ -63,6 +66,7 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
   }
 
   void conectarDispositivo(BluetoothDevice device) async {
+    debugPrint("🟢 Tentando conectar em ${device.name} (${device.id})");
     // Mostra loading
     showDialog(
       context: context,
@@ -71,22 +75,73 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
     );
 
     try {
-      // Tenta conectar com timeout de 20 segundos
+      // 🔗 Conecta com license exigido pela lib
       await device
-          .connect(license: License.free)
+          .connect(
+            license: License.free, // <- obrigatório na sua versão
+            autoConnect: false,
+          )
           .timeout(
-            const Duration(seconds: 20),
+            const Duration(seconds: 30),
             onTimeout: () {
               throw Exception('Tempo de conexão esgotado');
             },
           );
 
+      device.connectionState.listen((state) {
+        debugPrint("📶 Estado de conexão: $state");
+      });
+      debugPrint('[DEBUG] Conectado ao dispositivo: ${device.id}');
+
+      // 🔍 Descobre os serviços GATT disponíveis
+      List<BluetoothService> services = await device.discoverServices();
+
+      debugPrint(
+        '[DEBUG] Serviços descobertos: ${services.map((s) => s.uuid).toList()}',
+      );
+
+      // 🔎 Encontra o serviço e a característica correspondentes
+      final service = services.firstWhere(
+        (s) =>
+            s.uuid.toString().toLowerCase() ==
+            "12345678-1234-5678-1234-56789abcdef1".toLowerCase(),
+        orElse: () => throw Exception("Serviço BLE não encontrado"),
+      );
+
+      final characteristic = service.characteristics.firstWhere(
+        (c) =>
+            c.uuid.toString().toLowerCase() ==
+            "12345678-1234-5678-1234-56789abcdef0".toLowerCase(),
+        orElse: () => throw Exception("Característica BLE não encontrada"),
+      );
+
+      debugPrint('[DEBUG] Característica encontrada: ${characteristic.uuid}');
+
+      // 📦 Monta o JSON com Wi-Fi e senha
+      final dadosWifi = jsonEncode({"wifi": wifi, "senha": senha});
+      final List<int> payload = utf8.encode(dadosWifi);
+
+      // ✉️ Envia os dados via BLE para a Raspberry Pi
+      // Ajuste `withoutResponse` conforme comportamento do seu dispositivo.
+      // Se o servidor espera confirmação, use withoutResponse: false
+      await characteristic
+          .write(payload, withoutResponse: false)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception('Timeout ao enviar dados via BLE');
+            },
+          );
+
+      debugPrint("📤 Credenciais Wi-Fi enviadas via BLE: $dadosWifi");
+
+      // ✅ Salva no Firebase (mantive seu fluxo)
       final String nomeDispositivo =
           device.name.isNotEmpty ? device.name : 'Sem nome';
       final String idDispositivo = device.id.toString();
       final String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      final Map<String, dynamic> dadosDispositivo = {
+      final dadosDispositivo = {
         'nome': nomeDispositivo,
         'id': idDispositivo,
         'wifi': wifi,
@@ -94,37 +149,37 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
         'criado_em': DateTime.now().toIso8601String(),
       };
 
-      final DatabaseReference ref = FirebaseDatabase.instance.ref(
-        'usuarios/$uid/dispositivos',
-      );
-
+      final ref = FirebaseDatabase.instance.ref('usuarios/$uid/dispositivos');
       await ref.push().set(dadosDispositivo);
 
-      // Fecha loading
+      // Fecha o loading
       if (mounted) Navigator.pop(context);
 
-      // Mostra mensagem de sucesso
+      // Mensagem de sucesso
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Dispositivo conectado e salvo')),
+          const SnackBar(
+            content: Text('✅ Dispositivo conectado e configurado!'),
+          ),
         );
       }
 
-      // Volta para tela inicial (Home)
+      // Volta para tela inicial
       if (mounted) Navigator.pop(context);
-    } catch (e) {
-      // Fecha loading caso haja erro
+    } catch (e, st) {
+      debugPrint('[ERROR] conectarDispositivo: $e\n$st');
+
       if (mounted) Navigator.pop(context);
 
-      // Mostra mensagem de erro
+      final msg = e is Exception ? e.toString() : 'Erro desconhecido';
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao conectar: $e')));
+        ).showSnackBar(SnackBar(content: Text('❌ Erro ao conectar: $msg')));
       }
     } finally {
       // Para qualquer scan em andamento
-      FlutterBluePlus.stopScan();
+      await FlutterBluePlus.stopScan();
     }
   }
 
