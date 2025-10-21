@@ -4,6 +4,7 @@ import 'package:tcc/cadastro_hardware.dart';
 import 'package:tcc/login.dart';
 import 'package:tcc/my_home_page.dart';
 import 'package:tcc/perfil.dart';
+import 'package:tcc/services/fcm_service.dart';
 
 import 'package:tcc/forget_senha.dart';
 //import 'package:tcc/splash_screen.dart';
@@ -20,6 +21,7 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FcmService.initialize();
   runApp(const MyApp());
 }
 

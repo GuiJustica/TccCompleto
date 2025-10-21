@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:tcc/services/fcm_service.dart';
 import 'package:tcc/constants/CoresDefinidas/branco_sujo.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 import 'package:tcc/constants/texto_logo_invertido.dart';
@@ -39,6 +39,9 @@ class _LoginState extends State<Login> {
         password: senha,
       );
       if (!mounted) return;
+
+      // --- Aqui adicionamos a integração do FCM ---
+      //await FcmService.saveTokenForUser(FirebaseAuth.instance.currentUser!.uid);
       // Login bem-sucedido
       Navigator.pushReplacementNamed(context, 'home');
     } on FirebaseAuthException catch (e) {

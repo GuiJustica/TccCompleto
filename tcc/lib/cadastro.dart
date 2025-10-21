@@ -3,7 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
+import 'package:tcc/services/fcm_service.dart';
 import 'package:tcc/constants/my_textfield.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,6 +58,10 @@ class _CadastroState extends State<Cadastro> {
       );
 
       if (!mounted) return;
+
+      // --- Integração FCM ---
+      //final userId = FirebaseAuth.instance.currentUser!.uid;
+      //await FcmService.saveTokenForUser(userId);
 
       Navigator.pushReplacementNamed(context, 'login');
     } on FirebaseAuthException catch (e) {
