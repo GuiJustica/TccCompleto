@@ -27,9 +27,9 @@ Aplicativo
  - Trocar link do vídeo de ajuda
  - Arrumar design (talvez) - acento em estatísticas
  - Tela de configurações levar para as configurações do aplicativo do celular mesmo
- - Arrumar o degign da tela de configurações
+ - Arrumar o design da tela de configurações
  - Arrumar tela de vinculação do dispositivo
 Hardware
- - 	Melhorar a identificação do som
+ - Melhorar a identificação do som
  - Testar se funciona ocm wi fi diferent
  - Testar muitas coisas , n sei o que exatamente
