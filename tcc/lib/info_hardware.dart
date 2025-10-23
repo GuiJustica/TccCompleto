@@ -313,7 +313,9 @@ class _InfoHardwareState extends State<InfoHardware> {
                         ),
                         const SizedBox(height: 20),
                         OutlinedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'registros');
+                          },
                           icon: const Icon(Icons.history),
                           label: const Text("Ver todos registros"),
                           style: OutlinedButton.styleFrom(

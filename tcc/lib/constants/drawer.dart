@@ -19,9 +19,18 @@ class AppDrawer extends StatelessWidget {
             height: 150,
             color: Colors.deepPurple.shade100,
             child: Center(
-              child: SizedBox(
-                height: 60,
-                child: Image.asset("assets/images/logo.png"),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    'home',
+                    (route) => false,
+                  );
+                },
+                child: SizedBox(
+                  height: 60,
+                  child: Image.asset("assets/images/logo.png"),
+                ),
               ),
             ),
           ),

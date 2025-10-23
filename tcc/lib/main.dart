@@ -11,6 +11,7 @@ import 'package:tcc/forget_senha.dart';
 import 'package:tcc/cad_or_login.dart';
 import 'package:tcc/settings.dart';
 import 'package:tcc/splash_screen.dart';
+import 'package:tcc/registros.dart';
 import 'package:tcc/tutorial.dart';
 import 'package:tcc/info_hardware.dart';
 import 'package:tcc/vinculacao_hardware.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         'infoHardware': (context) => InfoHardware(),
         'vincHardware': (context) => VinculacaoHardware(),
         'forgetSenha': (context) => ForgetSenha(),
+        'registros': (context) => Registros(),
       },
     );
   }

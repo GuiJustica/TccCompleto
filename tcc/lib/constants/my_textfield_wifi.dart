@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tcc/constants/CoresDefinidas/preto_azulado.dart';
+
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 class MyTextfieldWifi extends StatefulWidget {
@@ -24,7 +24,6 @@ class MyTextfieldWifi extends StatefulWidget {
 
 class _MyTextfieldWifiState extends State<MyTextfieldWifi> {
   late bool _obscureText;
-  bool _isValid = false;
 
   @override
   void initState() {

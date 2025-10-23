@@ -37,12 +37,16 @@ class Tutorial extends StatelessWidget {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(
-              right: 30.0,
-            ), // controla distância da borda direita
-            child: Image.asset(
-              'assets/images/logobranco.png', // caminho da sua logo
-              height: 35, // altura da imagem
+            padding: const EdgeInsets.only(right: 30.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  'home',
+                  (route) => false,
+                );
+              },
+              child: Image.asset('assets/images/logobranco.png', height: 35),
             ),
           ),
         ],
@@ -136,7 +140,7 @@ class Tutorial extends StatelessWidget {
                             trailing: Image.asset('assets/images/youtube.png'),
                             onTap:
                                 () => abrirYoutube(
-                                  "https://www.youtube.com/watch?v=88CgS9anXJs",
+                                  "https://www.youtube.com/watch?v=teXn9rfQZ00",
                                 ),
                           ),
                           Divider(),
@@ -150,7 +154,10 @@ class Tutorial extends StatelessWidget {
                               ),
                             ),
                             trailing: Image.asset('assets/images/youtube.png'),
-                            onTap: () => {},
+                            onTap:
+                                () => abrirYoutube(
+                                  "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                                ),
                           ),
                           Divider(),
                         ],
@@ -179,7 +186,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                         Divider(),
                         ListTile(
@@ -192,7 +202,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                       ],
                     ),
@@ -218,7 +231,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                         Divider(),
                         ListTile(
@@ -231,7 +247,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                       ],
                     ),
@@ -257,13 +276,16 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                       ],
                     ),
                     ExpansionTile(
                       title: Text(
-                        "Estatisticas do seu amigo ouvinte",
+                        "Estatísticas do seu amigo ouvinte",
                         style: TextStyle(
                           color: pretoLetra,
                           fontFamily: 'Urbanist',
@@ -283,7 +305,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                       ],
                     ),
@@ -309,7 +334,10 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                       ],
                     ),
@@ -335,47 +363,12 @@ class Tutorial extends StatelessWidget {
                             ),
                           ),
                           trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
+                          onTap:
+                              () => abrirYoutube(
+                                "https://www.youtube.com/watch?v=teXn9rfQZ00",
+                              ),
                         ),
                         Divider(),
-                        ListTile(
-                          title: Text(
-                            "Não sei",
-                            style: TextStyle(
-                              color: pretoLetra,
-                              fontFamily: 'Urbanist',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
-                        ),
-                        Divider(),
-                        ListTile(
-                          title: Text(
-                            "Não sei",
-                            style: TextStyle(
-                              color: pretoLetra,
-                              fontFamily: 'Urbanist',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
-                        ),
-                        Divider(),
-                        ListTile(
-                          title: Text(
-                            "Não sei",
-                            style: TextStyle(
-                              color: pretoLetra,
-                              fontFamily: 'Urbanist',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          trailing: Image.asset('assets/images/youtube.png'),
-                          onTap: () => {},
-                        ),
                       ],
                     ),
                   ],

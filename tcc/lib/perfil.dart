@@ -133,12 +133,16 @@ class _PerfilState extends State<Perfil> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(
-              right: 30.0,
-            ), // controla distância da borda direita
-            child: Image.asset(
-              'assets/images/logobranco.png', // caminho da sua logo
-              height: 35, // altura da imagem
+            padding: const EdgeInsets.only(right: 30.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  'home',
+                  (route) => false,
+                );
+              },
+              child: Image.asset('assets/images/logobranco.png', height: 35),
             ),
           ),
         ],

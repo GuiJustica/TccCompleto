@@ -4,6 +4,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
 
 import 'package:http/http.dart' as http;
@@ -206,23 +207,36 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(
-              right: 30.0,
-            ), // controla distância da borda direita
-            child: Image.asset(
-              'assets/images/logobranco.png', // caminho da sua logo
-              height: 35, // altura da imagem
+            padding: const EdgeInsets.only(right: 30.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  'home',
+                  (route) => false,
+                );
+              },
+              child: Image.asset('assets/images/logobranco.png', height: 35),
             ),
           ),
         ],
       ),
       body: Column(
         children: [
-          ElevatedButton.icon(
-            onPressed: buscarDispositivos,
-            icon: Icon(Icons.bluetooth_searching),
-            label: Text(buscando ? "Buscando..." : "Buscar Dispositivos"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Procure pelo dispositivo chamado 'HearSafe'.\n\n"
+              "Se não encontrar, reinicie a busca.",
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Urbanist',
+                color: pretoLetra,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
+          const SizedBox(height: 30),
           Expanded(
             child:
                 dispositivosEncontrados.isEmpty
@@ -245,6 +259,15 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
                       },
                     ),
           ),
+          ElevatedButton.icon(
+            onPressed: buscarDispositivos,
+            icon: Icon(Icons.bluetooth_searching),
+            label: Text(
+              buscando ? "Buscando..." : "Buscar Dispositivos",
+              style: TextStyle(fontFamily: 'Urbanist'),
+            ),
+          ),
+          const SizedBox(height: 50),
         ],
       ),
     );

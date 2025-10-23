@@ -3,17 +3,16 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // <-- importante para formatar data
 
 class FcmService {
   static final _database = FirebaseDatabase.instance.ref();
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  /// Inicializa notificações locais e listeners do Realtime Database
   static Future<void> initialize() async {
     debugPrint('🚀 Inicializando FcmService...');
 
-    // Inicializa notificações locais
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings =
@@ -25,46 +24,53 @@ class FcmService {
     await _notificationsPlugin.initialize(initSettings);
     debugPrint('✅ Notificações locais inicializadas');
 
-    // Pega UID do usuário autenticado
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      debugPrint('⚠️ Nenhum usuário logado. FcmService não será inicializado.');
-      return;
-    }
+    if (user == null) return;
     final userId = user.uid;
-    debugPrint('UID atual: $userId');
 
-    // Caminho para os eventos_sons do usuário
     final userEventsRef = _database.child('usuarios/$userId/eventos_sons');
 
-    // Listener para cada nova Raspberry vinculada
     userEventsRef.onChildAdded.listen((DatabaseEvent raspberrySnapshot) {
       final raspberryId = raspberrySnapshot.snapshot.key;
-      if (raspberryId == null) {
-        debugPrint('⚠️ Raspberry sem ID detectada');
-        return;
-      }
-      debugPrint('👂 Escutando eventos da Raspberry: $raspberryId');
+      if (raspberryId == null) return;
 
-      // Listener para cada novo evento dessa Raspberry
       userEventsRef.child(raspberryId).onChildAdded.listen((
         DatabaseEvent eventSnapshot,
       ) {
         final data = eventSnapshot.snapshot.value as Map<dynamic, dynamic>?;
         if (data != null) {
+          // Formata intensidade
+          final intensity = _mapIntensidade(
+            (data['confidence'] ?? 0).toDouble(),
+          );
+
+          // Formata hora
+          final hora = _formatHora(data['timestamp'] ?? '');
+
           final title = data['label']?.toString() ?? 'Novo som detectado';
-          final body =
-              'Confiança: ${data['confidence']?.toString() ?? 'N/A'}\nHorário: ${data['timestamp'] ?? ''}';
-          debugPrint('📡 Novo evento detectado em $raspberryId: $data');
+          final body = 'Intensidade: $intensity\nHorário: $hora';
           _showNotification(title, body);
-        } else {
-          debugPrint('⚠️ Evento vazio detectado em $raspberryId');
         }
       });
     });
   }
 
-  /// Mostra notificação local no celular
+  static String _mapIntensidade(double conf) {
+    if (conf >= 0.7) return 'Alta';
+    if (conf >= 0.4) return 'Média';
+    return 'Baixa';
+  }
+
+  static String _formatHora(String ts) {
+    if (ts.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(ts);
+      return DateFormat('dd/MM HH:mm').format(dt);
+    } catch (e) {
+      return '';
+    }
+  }
+
   static Future<void> _showNotification(String title, String body) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -81,7 +87,7 @@ class FcmService {
     );
 
     await _notificationsPlugin.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000, // id único
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       details,
