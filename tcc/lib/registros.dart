@@ -14,11 +14,19 @@ class Registros extends StatefulWidget {
 class _RegistrosState extends State<Registros> {
   final _database = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> eventos = [];
+  String deviceId = '';
+  bool carregado = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadEventos();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!carregado) {
+      final args = ModalRoute.of(context)!.settings.arguments as String;
+      deviceId = args;
+      _loadEventos();
+      _removeOldEventos();
+      carregado = true;
+    }
   }
 
   // === FUNÇÃO PARA MAPEAR INTENSIDADE ===
@@ -29,60 +37,117 @@ class _RegistrosState extends State<Registros> {
   }
 
   // === FUNÇÃO PARA FORMATAR HORA ===
-  String formatHora(String ts) {
-    if (ts.isEmpty) return "";
+  String _formatHoraLocal(String ts) {
+    if (ts.isEmpty) return '';
     try {
-      // Parseia a string ISO 8601 para DateTime
-      final dt = DateTime.parse(ts);
-      // Formata para "dd/MM HH:mm"
+      // Remove microsegundos extras se existirem
+      String cleaned = ts.split('.').first;
+      // Adiciona 'Z' para indicar UTC
+      final dt = DateTime.parse('${cleaned}Z').toLocal();
       return DateFormat('dd/MM HH:mm').format(dt);
     } catch (e) {
-      return "";
+      return '';
     }
   }
 
+  // === REMOVER EVENTOS ANTIGOS ===
+  void _removeOldEventos() async {
+    final now = DateTime.now(); // horário local
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snapshotEventos =
+        await FirebaseDatabase.instance
+            .ref('usuarios/${user.uid}/eventos_sons')
+            .get();
+
+    if (!snapshotEventos.exists) return;
+
+    for (var raspberry in snapshotEventos.children) {
+      for (var evento in raspberry.children) {
+        final data = evento.value as Map<dynamic, dynamic>?;
+        if (data == null) continue;
+
+        final tsString = data["timestamp"]?.toString();
+        if (tsString == null) continue;
+
+        try {
+          // Limpa microsegundos extras e adiciona Z para UTC
+          String cleaned = tsString.split('.').first;
+          final ts = DateTime.parse('${cleaned}Z').toLocal();
+
+          final diffTime = now.difference(ts).inDays;
+
+          debugPrint('Timestamp do evento (local): $ts');
+          debugPrint('Diferença de Dias: $diffTime');
+
+          // Remove se tiver mais de 3 dias
+          if (diffTime >= 3) {
+            final path =
+                'usuarios/${user.uid}/eventos_sons/${raspberry.key}/${evento.key}';
+            await FirebaseDatabase.instance.ref(path).remove();
+            debugPrint('✅ Evento removido: $path');
+          }
+        } catch (e) {
+          debugPrint('❌ Erro ao parsear timestamp: $tsString | $e');
+        }
+      }
+    }
+  }
+
+  // === CARREGA EVENTOS PARA EXIBIÇÃO ===
+  // === CARREGA EVENTOS PARA EXIBIÇÃO ===
   void _loadEventos() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     final snapshotEventos =
-        await _database.child('usuarios/${user.uid}/eventos_sons').get();
-    final snapshotDispositivos =
-        await _database.child('usuarios/${user.uid}/dispositivos').get();
+        await _database
+            .child('usuarios/${user.uid}/eventos_sons/$deviceId')
+            .get();
 
-    Map<String, String> raspberryToLocal = {};
-    if (snapshotDispositivos.exists) {
-      for (var device in snapshotDispositivos.children) {
-        final data = device.value as Map<dynamic, dynamic>?;
-        raspberryToLocal[device.key ?? ""] =
-            data?['ambiente']?.toString() ?? "Desconhecido";
-      }
+    final snapshotDispositivo =
+        await _database
+            .child('usuarios/${user.uid}/dispositivos/$deviceId')
+            .get();
+
+    String local = 'Desconhecido';
+    if (snapshotDispositivo.exists) {
+      final data = snapshotDispositivo.value as Map<dynamic, dynamic>?;
+      local = data?['ambiente']?.toString() ?? 'Desconhecido';
     }
 
     List<Map<String, dynamic>> listaEventos = [];
 
     if (snapshotEventos.exists) {
-      for (var raspberry in snapshotEventos.children) {
-        final local = raspberryToLocal[raspberry.key ?? ""] ?? "Desconhecido";
+      for (var evento in snapshotEventos.children) {
+        final data = evento.value as Map<dynamic, dynamic>;
+        final conf = (data['confidence'] ?? 0).toDouble();
+        final timestamp = data['timestamp']?.toString() ?? '';
 
-        for (var evento in raspberry.children) {
-          final data = evento.value as Map<dynamic, dynamic>;
-          final conf = (data["confidence"] ?? 0).toDouble();
-          final timestamp = data["timestamp"];
-          listaEventos.add({
-            "idEvento": evento.key,
-            "raspberry": raspberry.key,
-            "som": data["label"]?.toString() ?? "N/A",
-            "intensidade": mapIntensidade((data["confidence"] ?? 0).toDouble()),
-            "local": local,
-            "hora": formatHora(data["timestamp"] ?? ""),
-          });
-        }
+        // Parse seguro para UTC -> converte para local
+        String cleaned = timestamp.split('.').first;
+        final tsLocal = DateTime.parse('${cleaned}Z').toLocal();
+        final horaFormatada = DateFormat('dd/MM HH:mm').format(tsLocal);
+
+        listaEventos.add({
+          "idEvento": evento.key,
+          "raspberry": deviceId,
+          "som": data["label"]?.toString() ?? "N/A",
+          "intensidade": mapIntensidade(conf),
+          "local": local,
+          "hora": horaFormatada,
+          "timestamp": tsLocal,
+        });
       }
     }
 
-    // Ordena do mais recente para o mais antigo
-    listaEventos.sort((a, b) => b["hora"].compareTo(a["hora"]));
+    listaEventos.sort((a, b) {
+      final t1 = a["timestamp"] as DateTime?;
+      final t2 = b["timestamp"] as DateTime?;
+      if (t1 == null || t2 == null) return 0;
+      return t2.compareTo(t1);
+    });
 
     setState(() {
       eventos = listaEventos;

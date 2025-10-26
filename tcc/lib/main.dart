@@ -7,10 +7,9 @@ import 'package:tcc/perfil.dart';
 import 'package:tcc/services/fcm_service.dart';
 
 import 'package:tcc/forget_senha.dart';
-//import 'package:tcc/splash_screen.dart';
+import 'package:tcc/splash_screen.dart';
 import 'package:tcc/cad_or_login.dart';
 import 'package:tcc/settings.dart';
-import 'package:tcc/splash_screen.dart';
 import 'package:tcc/registros.dart';
 import 'package:tcc/tutorial.dart';
 import 'package:tcc/info_hardware.dart';
@@ -33,7 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+      home: SplashScreen(),
       routes: {
         'home': (context) => MyHomePage(),
         'cadorlogin': (context) => CadOrLogin(),

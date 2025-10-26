@@ -30,41 +30,42 @@ class FcmService {
 
     final userEventsRef = _database.child('usuarios/$userId/eventos_sons');
 
+    // Escuta todos os eventos de sons de todos os Raspberry vinculados a este usuário
     userEventsRef.onChildAdded.listen((DatabaseEvent raspberrySnapshot) {
-      final raspberryId = raspberrySnapshot.snapshot.key;
-      if (raspberryId == null) return;
+      final raspberryEvents =
+          raspberrySnapshot.snapshot.value as Map<dynamic, dynamic>?;
+      if (raspberryEvents == null) return;
 
-      userEventsRef.child(raspberryId).onChildAdded.listen((
-        DatabaseEvent eventSnapshot,
-      ) {
-        final data = eventSnapshot.snapshot.value as Map<dynamic, dynamic>?;
-        if (data != null) {
-          // Formata intensidade
-          final intensity = _mapIntensidade(
-            (data['confidence'] ?? 0).toDouble(),
-          );
+      raspberryEvents.forEach((eventId, eventData) {
+        final data = eventData as Map<dynamic, dynamic>;
 
-          // Formata hora
-          final hora = _formatHora(data['timestamp'] ?? '');
+        // Formata intensidade
+        final intensity = _mapIntensidade((data['confidence'] ?? 0).toDouble());
 
-          final title = data['label']?.toString() ?? 'Novo som detectado';
-          final body = 'Intensidade: $intensity\nHorário: $hora';
-          _showNotification(title, body);
-        }
+        // Formata hora
+        final hora = _formatHora(data['timestamp'] ?? '');
+
+        final title = data['label']?.toString() ?? 'Novo som detectado';
+        final body = 'Intensidade: $intensity\nHorário: $hora';
+
+        _showNotification(title, body);
       });
     });
   }
 
   static String _mapIntensidade(double conf) {
-    if (conf >= 0.7) return 'Alta';
-    if (conf >= 0.4) return 'Média';
+    if (conf >= 0.9) return 'Alta';
+    if (conf >= 0.6) return 'Média';
     return 'Baixa';
   }
 
   static String _formatHora(String ts) {
     if (ts.isEmpty) return '';
     try {
-      final dt = DateTime.parse(ts);
+      // Remove microsegundos extras se existirem
+      String cleaned = ts.split('.').first; // pega só até os segundos
+      // Adiciona 'Z' para indicar UTC
+      final dt = DateTime.parse('${cleaned}Z').toLocal();
       return DateFormat('dd/MM HH:mm').format(dt);
     } catch (e) {
       return '';

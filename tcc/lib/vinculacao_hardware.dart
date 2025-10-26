@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:tcc/constants/CoresDefinidas/preto_letra.dart';
 import 'package:tcc/constants/CoresDefinidas/roxo_tres.dart';
+import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
@@ -66,8 +67,9 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
     });
   }
 
-  void conectarDispositivo(BluetoothDevice device) async {
+  Future<void> conectarDispositivo(BluetoothDevice device) async {
     debugPrint("🟢 Tentando conectar em ${device.name} (${device.id})");
+
     // Mostra loading
     showDialog(
       context: context,
@@ -76,102 +78,111 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
     );
 
     try {
-      // 🔗 Conecta com license exigido pela lib
+      // 1) Conecta via BLE
       await device
-          .connect(
-            license: License.free, // <- obrigatório na sua versão
-            autoConnect: false,
-          )
+          .connect(license: License.free, autoConnect: false)
           .timeout(
             const Duration(seconds: 30),
-            onTimeout: () {
-              throw Exception('Tempo de conexão esgotado');
-            },
+            onTimeout: () => throw Exception('Tempo de conexão esgotado'),
           );
-
-      device.connectionState.listen((state) {
-        debugPrint("📶 Estado de conexão: $state");
-      });
       debugPrint('[DEBUG] Conectado ao dispositivo: ${device.id}');
 
-      // 🔍 Descobre os serviços GATT disponíveis
+      // 2) Descobre serviços e características
       List<BluetoothService> services = await device.discoverServices();
-
-      debugPrint(
-        '[DEBUG] Serviços descobertos: ${services.map((s) => s.uuid).toList()}',
-      );
-
-      // 🔎 Encontra o serviço e a característica correspondentes
       final service = services.firstWhere(
         (s) =>
             s.uuid.toString().toLowerCase() ==
-            "12345678-1234-5678-1234-56789abcdef1".toLowerCase(),
+            "12345678-1234-5678-1234-56789abcdef1",
         orElse: () => throw Exception("Serviço BLE não encontrado"),
       );
 
-      final characteristic = service.characteristics.firstWhere(
+      final writeCharacteristic = service.characteristics.firstWhere(
         (c) =>
             c.uuid.toString().toLowerCase() ==
-            "12345678-1234-5678-1234-56789abcdef0".toLowerCase(),
-        orElse: () => throw Exception("Característica BLE não encontrada"),
+            "12345678-1234-5678-1234-56789abcdef0",
+        orElse:
+            () => throw Exception("Característica BLE (write) não encontrada"),
       );
 
-      debugPrint('[DEBUG] Característica encontrada: ${characteristic.uuid}');
-
-      // 📦 Monta o JSON com Wi-Fi e senha
+      // 3) Envia credenciais Wi-Fi
       final dadosWifi = jsonEncode({"wifi": wifi, "senha": senha});
-      final List<int> payload = utf8.encode(dadosWifi);
+      await writeCharacteristic.write(
+        utf8.encode(dadosWifi),
+        withoutResponse: false,
+      );
+      debugPrint("📤 Credenciais Wi-Fi enviadas: $dadosWifi");
 
-      // ✉️ Envia os dados via BLE para a Raspberry Pi
-      // Ajuste `withoutResponse` conforme comportamento do seu dispositivo.
-      // Se o servidor espera confirmação, use withoutResponse: false
-      await characteristic
-          .write(payload, withoutResponse: false)
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              throw Exception('Timeout ao enviar dados via BLE');
-            },
-          );
-
-      debugPrint("📤 Credenciais Wi-Fi enviadas via BLE: $dadosWifi");
-
-      // ✅ Salva no Firebase (mantive seu fluxo)
-      final String nomeDispositivo =
-          device.name.isNotEmpty ? device.name : 'Sem nome';
-      final String idDispositivo = device.id.toString();
+      // 4) Aguarda até que o dummy_user_id exista no Firebase
       final String uid = FirebaseAuth.instance.currentUser!.uid;
+      final refDummy = FirebaseDatabase.instance.ref('usuarios/dummy_user_id');
 
-      final dadosDispositivo = {
-        'nome': nomeDispositivo,
-        'id': idDispositivo,
-        'wifi': wifi,
-        'senha': senha,
-        'criado_em': DateTime.now().toIso8601String(),
-      };
+      bool dummyCriado = false;
+      const maxTentativas = 10;
+      int tentativas = 0;
 
-      final ref = FirebaseDatabase.instance.ref('usuarios/$uid/dispositivos');
-      await ref.push().set(dadosDispositivo);
+      while (!dummyCriado && tentativas < maxTentativas) {
+        final snapshot = await refDummy.get();
+        if (snapshot.exists && snapshot.children.isNotEmpty) {
+          dummyCriado = true;
+          break;
+        }
+        await Future.delayed(const Duration(seconds: 1));
+        tentativas++;
+      }
 
-      // Fecha o loading
-      if (mounted) Navigator.pop(context);
+      if (!dummyCriado) {
+        throw Exception(
+          "❌ Algo inesperado aconteceu! Verifique as informações de Wi-Fi",
+        );
+      }
 
-      // Mensagem de sucesso
+      debugPrint("✅ Dummy_user_id detectado!");
+
+      // 5) Remove dummy_user_id
+      try {
+        final snapshot = await refDummy.get();
+        if (snapshot.exists) await refDummy.remove();
+        debugPrint("🧹 Dummy removido com sucesso");
+        final String nomeDispositivo =
+            device.name.isNotEmpty ? device.name : 'Sem nome';
+        final String idDispositivo = device.id.toString();
+
+        final dadosDispositivo = {
+          'nome': nomeDispositivo,
+          'id': idDispositivo,
+          'wifi': wifi,
+          'senha': senha,
+          'criado_em': DateTime.now().toIso8601String(),
+        };
+
+        final refDispositivo = FirebaseDatabase.instance.ref(
+          'usuarios/$uid/dispositivos',
+        );
+        debugPrint(
+          "🔹 Salvando dispositivo em usuarios/$uid/dispositivos: $dadosDispositivo",
+        );
+
+        await refDispositivo.push().set(dadosDispositivo);
+        debugPrint("🔹 Dispositivo salvo com sucesso");
+        // 7) Fecha loading e mostra mensagem de sucesso
+        if (mounted) Navigator.pop(context);
+      } catch (e, st) {
+        debugPrint("❌ Erro ao remover dummy: $e\n$st");
+      }
+
+      // 6) Cria dispositivo no nó do usuário
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Dispositivo conectado e configurado!'),
           ),
         );
+        Navigator.pop(context); // volta à tela anterior
       }
-
-      // Volta para tela inicial
-      if (mounted) Navigator.pop(context);
     } catch (e, st) {
       debugPrint('[ERROR] conectarDispositivo: $e\n$st');
-
-      if (mounted) Navigator.pop(context);
-
+      if (mounted) Navigator.pop(context); // fecha loading
       final msg = e is Exception ? e.toString() : 'Erro desconhecido';
       if (mounted) {
         ScaffoldMessenger.of(
@@ -179,7 +190,6 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
         ).showSnackBar(SnackBar(content: Text('❌ Erro ao conectar: $msg')));
       }
     } finally {
-      // Para qualquer scan em andamento
       await FlutterBluePlus.stopScan();
     }
   }
