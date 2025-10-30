@@ -54,6 +54,7 @@ class FcmService {
             (data['confidence'] ?? 0).toDouble(),
           );
 
+          final x = calcularTempoResposta(data['timestamp']);
           // Formata hora
           final hora = _formatHora(data['timestamp'] ?? '');
 
@@ -63,6 +64,26 @@ class FcmService {
         }
       });
     });
+  }
+
+  static calcularTempoResposta(String timestampEvento) {
+    try {
+      // Interpreta o timestamp como UTC
+      final eventoTime = DateTime.parse(timestampEvento).toUtc();
+
+      // Aplica o fuso horário manual (-3 horas)
+      final eventoLocal = eventoTime.subtract(Duration(hours: 3));
+
+      final agora = DateTime.now();
+      final diff = agora.difference(eventoLocal).inMilliseconds;
+
+      final diffSegundos = diff / 1000.0;
+      debugPrint("🕒 Tempo total de resposta: $diffSegundos segundos");
+      return diffSegundos;
+    } catch (e) {
+      debugPrint("Erro ao calcular tempo de resposta: $e\n$timestampEvento");
+      return 0.0;
+    }
   }
 
   static String _mapIntensidade(double conf) {

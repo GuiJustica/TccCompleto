@@ -82,7 +82,7 @@ class _RegistrosState extends State<Registros> {
           debugPrint('Diferença de Dias: $diffTime');
 
           // Remove se tiver mais de 3 dias
-          if (diffTime >= 3) {
+          if (diffTime >= 1) {
             final path =
                 'usuarios/${user.uid}/eventos_sons/${raspberry.key}/${evento.key}';
             await FirebaseDatabase.instance.ref(path).remove();
@@ -95,7 +95,6 @@ class _RegistrosState extends State<Registros> {
     }
   }
 
-  // === CARREGA EVENTOS PARA EXIBIÇÃO ===
   // === CARREGA EVENTOS PARA EXIBIÇÃO ===
   void _loadEventos() async {
     final user = FirebaseAuth.instance.currentUser;

@@ -59,7 +59,14 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
 
     FlutterBluePlus.scanResults.listen((results) {
-      setState(() => dispositivosEncontrados = results);
+      // 🔹 Filtra apenas dispositivos com nome "HearSafe"
+      final filtrados =
+          results.where((r) {
+            final nome = r.device.name.trim();
+            return nome == "HearSafePi";
+          }).toList();
+
+      setState(() => dispositivosEncontrados = filtrados);
     });
 
     Future.delayed(const Duration(seconds: 6), () {
@@ -236,7 +243,7 @@ class _VinculacaoHardwareState extends State<VinculacaoHardware> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Procure pelo dispositivo chamado 'HearSafe'.\n\n"
+              "Procure pelo dispositivo chamado 'HearSafePi'.\n\n"
               "Se não encontrar, reinicie a busca.",
               style: TextStyle(
                 fontSize: 16,
